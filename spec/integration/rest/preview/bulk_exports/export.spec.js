@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,24 +25,24 @@ var holodeck;
 describe('Export', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.preview.bulk_exports.exports('resourceType').fetch();
-      promise = promise.then(function() {
+      var promise = client.preview.bulk_exports.exports('resource_type').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {resourceType: 'resourceType'};
-      var url = _.template('https://preview.twilio.com/BulkExports/Exports/<%= resourceType %>')(solution);
+      var resourceType = 'resource_type';
+      var url = `https://preview.twilio.com/BulkExports/Exports/${resourceType}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -52,26 +51,24 @@ describe('Export', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'resource_type': 'Calls',
           'url': 'https://preview.twilio.com/BulkExports/Exports/Calls',
           'links': {
               'days': 'https://preview.twilio.com/BulkExports/Exports/Calls/Days'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.bulk_exports.exports('resourceType').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.preview.bulk_exports.exports('resource_type').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

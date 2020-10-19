@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,28 +25,28 @@ var holodeck;
 describe('ShortCode', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var opts = {shortCodeSid: 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var promise = client.messaging.v1.services('MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {shortCodeSid: 'SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'};
+      var promise = client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                        .shortCodes.create(opts);
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {serviceSid: 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://messaging.twilio.com/v1/Services/<%= serviceSid %>/ShortCodes')(solution);
+      var serviceSid = 'MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://messaging.twilio.com/v1/Services/${serviceSid}/ShortCodes`;
 
-      var values = {ShortCodeSid: 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
+      var values = {ShortCodeSid: 'SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', };
       holodeck.assertHasRequest(new Request({
           method: 'POST',
           url: url,
@@ -56,8 +55,8 @@ describe('ShortCode', function() {
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'service_sid': 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -65,42 +64,41 @@ describe('ShortCode', function() {
           'date_updated': '2015-07-30T20:12:33Z',
           'short_code': '12345',
           'country_code': 'US',
-          'capabilities': [],
+          'capabilities': [
+              'SMS'
+          ],
           'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes/SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var opts = {shortCodeSid: 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var promise = client.messaging.v1.services('MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {shortCodeSid: 'SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'};
+      var promise = client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                        .shortCodes.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid remove request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.messaging.v1.services('MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                       .shortCodes('SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function() {
+      var promise = client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                       .shortCodes('SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://messaging.twilio.com/v1/Services/<%= serviceSid %>/ShortCodes/<%= sid %>')(solution);
+      var serviceSid = 'MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://messaging.twilio.com/v1/Services/${serviceSid}/ShortCodes/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'DELETE',
@@ -109,47 +107,24 @@ describe('ShortCode', function() {
     }
   );
   it('should generate valid delete response',
-    function() {
-      var body = JSON.stringify(null);
+    function(done) {
+      var body = null;
 
       holodeck.mock(new Response(204, body));
 
-      var promise = client.messaging.v1.services('MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                       .shortCodes('SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function(response) {
+      var promise = client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                       .shortCodes('SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
         expect(response).toBe(true);
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.messaging.v1.services('MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                       .shortCodes.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {serviceSid: 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://messaging.twilio.com/v1/Services/<%= serviceSid %>/ShortCodes')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'meta': {
               'page': 0,
               'page_size': 50,
@@ -168,43 +143,168 @@ describe('ShortCode', function() {
                   'date_updated': '2015-07-30T20:12:33Z',
                   'short_code': '12345',
                   'country_code': 'US',
-                  'capabilities': [],
+                  'capabilities': [
+                      'SMS'
+                  ],
                   'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes/SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
               }
           ]
-      });
-
+      };
       holodeck.mock(new Response(200, body));
-
-      var promise = client.messaging.v1.services('MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                       .shortCodes.list();
-      promise = promise.then(function(response) {
-        expect(response).toBeDefined();
-      }, function() {
-        throw new Error('failed');
-      });
-
-      promise.done();
+      client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                         .shortCodes.each(() => done());
     }
   );
-  it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'next_page_url': null,
+              'key': 'short_codes',
+              'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes?PageSize=50&Page=0'
+          },
+          'short_codes': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': '2015-07-30T20:12:31Z',
+                  'date_updated': '2015-07-30T20:12:33Z',
+                  'short_code': '12345',
+                  'country_code': 'US',
+                  'capabilities': [
+                      'SMS'
+                  ],
+                  'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes/SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ]
+      };
+      holodeck.mock(new Response(200, body));
+      client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                         .shortCodes.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://messaging.twilio.com/v1/Services/${serviceSid}/ShortCodes',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'next_page_url': null,
+              'key': 'short_codes',
+              'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes?PageSize=50&Page=0'
+          },
+          'short_codes': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': '2015-07-30T20:12:31Z',
+                  'date_updated': '2015-07-30T20:12:33Z',
+                  'short_code': '12345',
+                  'country_code': 'US',
+                  'capabilities': [
+                      'SMS'
+                  ],
+                  'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes/SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ]
+      };
+      holodeck.mock(new Response(200, body));
+      client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                         .shortCodes.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.messaging.v1.services('MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                       .shortCodes('SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                       .shortCodes.list();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      var serviceSid = 'MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://messaging.twilio.com/v1/Services/${serviceSid}/ShortCodes`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'next_page_url': null,
+              'key': 'short_codes',
+              'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes?PageSize=50&Page=0'
+          },
+          'short_codes': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': '2015-07-30T20:12:31Z',
+                  'date_updated': '2015-07-30T20:12:33Z',
+                  'short_code': '12345',
+                  'country_code': 'US',
+                  'capabilities': [
+                      'SMS'
+                  ],
+                  'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes/SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ]
       };
-      var url = _.template('https://messaging.twilio.com/v1/Services/<%= serviceSid %>/ShortCodes/<%= sid %>')(solution);
+
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                       .shortCodes.list();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid fetch request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                       .shortCodes('SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var serviceSid = 'MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://messaging.twilio.com/v1/Services/${serviceSid}/ShortCodes/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -213,8 +313,8 @@ describe('ShortCode', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'service_sid': 'MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -222,22 +322,22 @@ describe('ShortCode', function() {
           'date_updated': '2015-07-30T20:12:33Z',
           'short_code': '12345',
           'country_code': 'US',
-          'capabilities': [],
+          'capabilities': [
+              'SMS'
+          ],
           'url': 'https://messaging.twilio.com/v1/Services/MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/ShortCodes/SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.messaging.v1.services('MGaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                       .shortCodes('SCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.messaging.v1.services('MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                       .shortCodes('SCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

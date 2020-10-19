@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,29 +25,27 @@ var holodeck;
 describe('Trigger', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
-                                    .triggers('UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+                                    .triggers('UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Usage/Triggers/<%= sid %>.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Usage/Triggers/${sid}.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -57,8 +54,8 @@ describe('Trigger', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'api_version': '2010-04-01',
           'callback_method': 'GET',
@@ -75,41 +72,38 @@ describe('Trigger', function() {
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers/UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'usage_category': 'totalprice',
           'usage_record_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Records?Category=totalprice'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
-                                    .triggers('UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+                                    .triggers('UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid update request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
-                                    .triggers('UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function() {
+                                    .triggers('UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Usage/Triggers/<%= sid %>.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Usage/Triggers/${sid}.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'POST',
@@ -118,8 +112,8 @@ describe('Trigger', function() {
     }
   );
   it('should generate valid update response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'api_version': '2010-04-01',
           'callback_method': 'GET',
@@ -136,41 +130,38 @@ describe('Trigger', function() {
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers/UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'usage_category': 'totalprice',
           'usage_record_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Records?Category=totalprice'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
-                                    .triggers('UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function(response) {
+                                    .triggers('UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid remove request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
-                                    .triggers('UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function() {
+                                    .triggers('UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Usage/Triggers/<%= sid %>.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Usage/Triggers/${sid}.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'DELETE',
@@ -179,49 +170,48 @@ describe('Trigger', function() {
     }
   );
   it('should generate valid delete response',
-    function() {
-      var body = JSON.stringify(null);
+    function(done) {
+      var body = null;
 
       holodeck.mock(new Response(204, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
-                                    .triggers('UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function(response) {
+                                    .triggers('UTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
         expect(response).toBe(true);
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
       var opts = {
         callbackUrl: 'https://example.com',
-        triggerValue: 'triggerValue',
-        usageCategory: 'answering-machine-detection'
+        triggerValue: 'trigger_value',
+        usageCategory: 'agent-conference'
       };
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
                                     .triggers.create(opts);
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Usage/Triggers.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Usage/Triggers.json`;
 
       var values = {
         CallbackUrl: 'https://example.com',
-        TriggerValue: 'triggerValue',
-        UsageCategory: 'answering-machine-detection',
+        TriggerValue: 'trigger_value',
+        UsageCategory: 'agent-conference',
       };
       holodeck.assertHasRequest(new Request({
           method: 'POST',
@@ -231,8 +221,8 @@ describe('Trigger', function() {
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'api_version': '2010-04-01',
           'callback_method': 'GET',
@@ -249,53 +239,29 @@ describe('Trigger', function() {
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers/UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'usage_category': 'totalprice',
           'usage_record_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Records?Category=totalprice'
-      });
+      };
 
       holodeck.mock(new Response(201, body));
 
       var opts = {
         callbackUrl: 'https://example.com',
-        triggerValue: 'triggerValue',
-        usageCategory: 'answering-machine-detection'
+        triggerValue: 'trigger_value',
+        usageCategory: 'agent-conference'
       };
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
                                     .triggers.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .usage
-                                    .triggers.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Usage/Triggers.json')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'end': 0,
           'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=0',
           'last_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=626',
@@ -327,25 +293,175 @@ describe('Trigger', function() {
                   'usage_record_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Records?Category=totalprice'
               }
           ]
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .usage
+                      .triggers.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=0',
+          'last_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=626',
+          'next_page_uri': null,
+          'num_pages': 627,
+          'page': 0,
+          'page_size': 1,
+          'previous_page_uri': null,
+          'start': 0,
+          'total': 627,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers',
+          'usage_triggers': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'api_version': '2010-04-01',
+                  'callback_method': 'GET',
+                  'callback_url': 'http://cap.com/streetfight',
+                  'current_value': '0',
+                  'date_created': 'Sun, 06 Sep 2015 12:58:45 +0000',
+                  'date_fired': null,
+                  'date_updated': 'Sun, 06 Sep 2015 12:58:45 +0000',
+                  'friendly_name': 'raphael-cluster-1441544325.86',
+                  'recurring': 'yearly',
+                  'sid': 'UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'trigger_by': 'price',
+                  'trigger_value': '50',
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers/UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'usage_category': 'totalprice',
+                  'usage_record_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Records?Category=totalprice'
+              }
+          ]
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .usage
+                      .triggers.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Usage/Triggers.json',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=0',
+          'last_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=626',
+          'next_page_uri': null,
+          'num_pages': 627,
+          'page': 0,
+          'page_size': 1,
+          'previous_page_uri': null,
+          'start': 0,
+          'total': 627,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers',
+          'usage_triggers': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'api_version': '2010-04-01',
+                  'callback_method': 'GET',
+                  'callback_url': 'http://cap.com/streetfight',
+                  'current_value': '0',
+                  'date_created': 'Sun, 06 Sep 2015 12:58:45 +0000',
+                  'date_fired': null,
+                  'date_updated': 'Sun, 06 Sep 2015 12:58:45 +0000',
+                  'friendly_name': 'raphael-cluster-1441544325.86',
+                  'recurring': 'yearly',
+                  'sid': 'UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'trigger_by': 'price',
+                  'trigger_value': '50',
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers/UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'usage_category': 'totalprice',
+                  'usage_record_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Records?Category=totalprice'
+              }
+          ]
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .usage
+                      .triggers.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .usage
+                                    .triggers.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Usage/Triggers.json`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=0',
+          'last_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=626',
+          'next_page_uri': null,
+          'num_pages': 627,
+          'page': 0,
+          'page_size': 1,
+          'previous_page_uri': null,
+          'start': 0,
+          'total': 627,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers',
+          'usage_triggers': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'api_version': '2010-04-01',
+                  'callback_method': 'GET',
+                  'callback_url': 'http://cap.com/streetfight',
+                  'current_value': '0',
+                  'date_created': 'Sun, 06 Sep 2015 12:58:45 +0000',
+                  'date_fired': null,
+                  'date_updated': 'Sun, 06 Sep 2015 12:58:45 +0000',
+                  'friendly_name': 'raphael-cluster-1441544325.86',
+                  'recurring': 'yearly',
+                  'sid': 'UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'trigger_by': 'price',
+                  'trigger_value': '50',
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers/UTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'usage_category': 'totalprice',
+                  'usage_record_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Records?Category=totalprice'
+              }
+          ]
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
                                     .triggers.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'end': 0,
           'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=0',
           'last_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers?PageSize=1&Page=626',
@@ -358,21 +474,19 @@ describe('Trigger', function() {
           'total': 627,
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Usage/Triggers',
           'usage_triggers': []
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .usage
                                     .triggers.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

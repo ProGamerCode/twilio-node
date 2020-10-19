@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,38 +25,15 @@ var holodeck;
 describe('Local', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .incomingPhoneNumbers
-                                    .local.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/IncomingPhoneNumbers/Local.json')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'end': 0,
-          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?PageSize=1&Page=0',
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0',
           'incoming_phone_numbers': [
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -72,10 +48,12 @@ describe('Local', function() {
                   },
                   'date_created': 'Thu, 30 Jul 2015 23:19:04 +0000',
                   'date_updated': 'Thu, 30 Jul 2015 23:19:04 +0000',
+                  'emergency_status': 'Active',
+                  'emergency_address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'friendly_name': '(808) 925-5327',
                   'identity_sid': 'RIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                  'phone_number': '+18089255327',
                   'origin': 'origin',
+                  'phone_number': '+18089255327',
                   'sid': 'PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'sms_application_sid': '',
                   'sms_fallback_method': 'POST',
@@ -91,84 +69,284 @@ describe('Local', function() {
                   'voice_fallback_method': 'POST',
                   'voice_fallback_url': null,
                   'voice_method': 'POST',
-                  'voice_url': null
+                  'voice_url': null,
+                  'bundle_sid': 'BUaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'voice_receive_mode': 'voice',
+                  'status': 'in-use'
               }
           ],
-          'last_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?PageSize=1&Page=2',
           'next_page_uri': null,
-          'num_pages': 3,
           'page': 0,
-          'page_size': 1,
+          'page_size': 50,
           'previous_page_uri': null,
           'start': 0,
-          'total': 3,
-          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?PageSize=1'
-      });
-
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0'
+      };
       holodeck.mock(new Response(200, body));
-
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .incomingPhoneNumbers
-                                    .local.list();
-      promise = promise.then(function(response) {
-        expect(response).toBeDefined();
-      }, function() {
-        throw new Error('failed');
-      });
-
-      promise.done();
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .incomingPhoneNumbers
+                      .local.each(() => done());
     }
   );
-  it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
           'end': 0,
-          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?PageSize=1&Page=0',
-          'incoming_phone_numbers': [],
-          'last_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?PageSize=1&Page=2',
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0',
+          'incoming_phone_numbers': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'address_requirements': 'none',
+                  'address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'api_version': '2010-04-01',
+                  'beta': null,
+                  'capabilities': {
+                      'mms': true,
+                      'sms': false,
+                      'voice': true
+                  },
+                  'date_created': 'Thu, 30 Jul 2015 23:19:04 +0000',
+                  'date_updated': 'Thu, 30 Jul 2015 23:19:04 +0000',
+                  'emergency_status': 'Active',
+                  'emergency_address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': '(808) 925-5327',
+                  'identity_sid': 'RIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'origin': 'origin',
+                  'phone_number': '+18089255327',
+                  'sid': 'PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sms_application_sid': '',
+                  'sms_fallback_method': 'POST',
+                  'sms_fallback_url': '',
+                  'sms_method': 'POST',
+                  'sms_url': '',
+                  'status_callback': '',
+                  'status_callback_method': 'POST',
+                  'trunk_sid': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+                  'voice_application_sid': '',
+                  'voice_caller_id_lookup': false,
+                  'voice_fallback_method': 'POST',
+                  'voice_fallback_url': null,
+                  'voice_method': 'POST',
+                  'voice_url': null,
+                  'bundle_sid': 'BUaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'voice_receive_mode': 'voice',
+                  'status': 'in-use'
+              }
+          ],
           'next_page_uri': null,
-          'num_pages': 3,
           'page': 0,
-          'page_size': 1,
+          'page_size': 50,
           'previous_page_uri': null,
           'start': 0,
-          'total': 3,
-          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?PageSize=1'
-      });
-
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0'
+      };
       holodeck.mock(new Response(200, body));
-
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .incomingPhoneNumbers
-                                    .local.list();
-      promise = promise.then(function(response) {
-        expect(response).toBeDefined();
-      }, function() {
-        throw new Error('failed');
-      });
-
-      promise.done();
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .incomingPhoneNumbers
+                      .local.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://api.twilio.com/2010-04-01/Accounts/${accountSid}/IncomingPhoneNumbers/Local.json',
+          params: {PageSize: 20},
+      }));
     }
   );
-  it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0',
+          'incoming_phone_numbers': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'address_requirements': 'none',
+                  'address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'api_version': '2010-04-01',
+                  'beta': null,
+                  'capabilities': {
+                      'mms': true,
+                      'sms': false,
+                      'voice': true
+                  },
+                  'date_created': 'Thu, 30 Jul 2015 23:19:04 +0000',
+                  'date_updated': 'Thu, 30 Jul 2015 23:19:04 +0000',
+                  'emergency_status': 'Active',
+                  'emergency_address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': '(808) 925-5327',
+                  'identity_sid': 'RIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'origin': 'origin',
+                  'phone_number': '+18089255327',
+                  'sid': 'PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sms_application_sid': '',
+                  'sms_fallback_method': 'POST',
+                  'sms_fallback_url': '',
+                  'sms_method': 'POST',
+                  'sms_url': '',
+                  'status_callback': '',
+                  'status_callback_method': 'POST',
+                  'trunk_sid': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+                  'voice_application_sid': '',
+                  'voice_caller_id_lookup': false,
+                  'voice_fallback_method': 'POST',
+                  'voice_fallback_url': null,
+                  'voice_method': 'POST',
+                  'voice_url': null,
+                  'bundle_sid': 'BUaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'voice_receive_mode': 'voice',
+                  'status': 'in-use'
+              }
+          ],
+          'next_page_uri': null,
+          'page': 0,
+          'page_size': 50,
+          'previous_page_uri': null,
+          'start': 0,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0'
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .incomingPhoneNumbers
+                      .local.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var opts = {phoneNumber: '+987654321'};
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .incomingPhoneNumbers
-                                    .local.create(opts);
-      promise = promise.then(function() {
+                                    .local.list();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/IncomingPhoneNumbers/Local.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/IncomingPhoneNumbers/Local.json`;
 
-      var values = {PhoneNumber: '+987654321'};
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0',
+          'incoming_phone_numbers': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'address_requirements': 'none',
+                  'address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'api_version': '2010-04-01',
+                  'beta': null,
+                  'capabilities': {
+                      'mms': true,
+                      'sms': false,
+                      'voice': true
+                  },
+                  'date_created': 'Thu, 30 Jul 2015 23:19:04 +0000',
+                  'date_updated': 'Thu, 30 Jul 2015 23:19:04 +0000',
+                  'emergency_status': 'Active',
+                  'emergency_address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': '(808) 925-5327',
+                  'identity_sid': 'RIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'origin': 'origin',
+                  'phone_number': '+18089255327',
+                  'sid': 'PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sms_application_sid': '',
+                  'sms_fallback_method': 'POST',
+                  'sms_fallback_url': '',
+                  'sms_method': 'POST',
+                  'sms_url': '',
+                  'status_callback': '',
+                  'status_callback_method': 'POST',
+                  'trunk_sid': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+                  'voice_application_sid': '',
+                  'voice_caller_id_lookup': false,
+                  'voice_fallback_method': 'POST',
+                  'voice_fallback_url': null,
+                  'voice_method': 'POST',
+                  'voice_url': null,
+                  'bundle_sid': 'BUaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'voice_receive_mode': 'voice',
+                  'status': 'in-use'
+              }
+          ],
+          'next_page_uri': null,
+          'page': 0,
+          'page_size': 50,
+          'previous_page_uri': null,
+          'start': 0,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0'
+      };
+
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .incomingPhoneNumbers
+                                    .local.list();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid read_empty response',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0',
+          'incoming_phone_numbers': [],
+          'next_page_uri': null,
+          'page': 0,
+          'page_size': 50,
+          'previous_page_uri': null,
+          'start': 0,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/Local.json?FriendlyName=friendly_name&Beta=true&PhoneNumber=%2B19876543210&PageSize=50&Page=0'
+      };
+
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .incomingPhoneNumbers
+                                    .local.list();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid create request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var opts = {phoneNumber: '+15017122661'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .incomingPhoneNumbers
+                                    .local.create(opts);
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/IncomingPhoneNumbers/Local.json`;
+
+      var values = {PhoneNumber: '+15017122661', };
       holodeck.assertHasRequest(new Request({
           method: 'POST',
           url: url,
@@ -177,56 +355,60 @@ describe('Local', function() {
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'address_requirements': 'none',
           'address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'api_version': '2010-04-01',
           'beta': false,
           'capabilities': {
-              'mms': true,
+              'voice': true,
               'sms': false,
-              'voice': true
+              'mms': true,
+              'fax': false
           },
           'date_created': 'Thu, 30 Jul 2015 23:19:04 +0000',
           'date_updated': 'Thu, 30 Jul 2015 23:19:04 +0000',
-          'friendly_name': '(808) 925-5327',
+          'emergency_status': 'Active',
+          'emergency_address_sid': 'ADaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'friendly_name': 'friendly_name',
           'identity_sid': 'RIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          'phone_number': '+18089255327',
           'origin': 'origin',
+          'phone_number': '+18089255327',
           'sid': 'PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          'sms_application_sid': '',
-          'sms_fallback_method': 'POST',
-          'sms_fallback_url': '',
-          'sms_method': 'POST',
-          'sms_url': '',
-          'status_callback': '',
-          'status_callback_method': 'POST',
+          'sms_application_sid': 'APaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'sms_fallback_method': 'GET',
+          'sms_fallback_url': 'https://example.com',
+          'sms_method': 'GET',
+          'sms_url': 'https://example.com',
+          'status_callback': 'https://example.com',
+          'status_callback_method': 'GET',
           'trunk_sid': null,
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/IncomingPhoneNumbers/PNaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
-          'voice_application_sid': '',
-          'voice_caller_id_lookup': false,
-          'voice_fallback_method': 'POST',
-          'voice_fallback_url': null,
-          'voice_method': 'POST',
-          'voice_url': null
-      });
+          'voice_application_sid': 'APaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'voice_caller_id_lookup': true,
+          'voice_fallback_method': 'GET',
+          'voice_fallback_url': 'https://example.com',
+          'voice_method': 'GET',
+          'voice_url': 'https://example.com',
+          'bundle_sid': 'BUaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'voice_receive_mode': 'voice',
+          'status': 'in-use'
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var opts = {phoneNumber: '+987654321'};
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {phoneNumber: '+15017122661'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .incomingPhoneNumbers
                                     .local.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

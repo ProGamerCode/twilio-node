@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,28 +25,26 @@ var holodeck;
 describe('Event', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.taskrouter.v1.workspaces('WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                        .events('EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.taskrouter.v1.workspaces('WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                        .events('EVXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        workspaceSid: 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://taskrouter.twilio.com/v1/Workspaces/<%= workspaceSid %>/Events/<%= sid %>')(solution);
+      var workspaceSid = 'WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'EVXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://taskrouter.twilio.com/v1/Workspaces/${workspaceSid}/Events/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -56,8 +53,8 @@ describe('Event', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'actor_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'actor_type': 'workspace',
@@ -70,10 +67,12 @@ describe('Event', function() {
               'worker_name': 'JustinWorker',
               'worker_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
               'worker_time_in_previous_activity': '26',
+              'worker_time_in_previous_activity_ms': '26123',
               'workspace_name': 'WorkspaceName',
               'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
           },
           'event_date': '2015-02-07T00:32:41Z',
+          'event_date_ms': 987654321111,
           'event_type': 'worker.activity',
           'resource_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'resource_type': 'worker',
@@ -81,47 +80,25 @@ describe('Event', function() {
           'sid': 'EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'source': 'twilio',
           'source_ip_address': '1.2.3.4',
+          'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events/EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.taskrouter.v1.workspaces('WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                        .events('EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.taskrouter.v1.workspaces('WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                        .events('EVXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.taskrouter.v1.workspaces('WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                        .events.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {workspaceSid: 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://taskrouter.twilio.com/v1/Workspaces/<%= workspaceSid %>/Events')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'events': [
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -136,10 +113,12 @@ describe('Event', function() {
                       'worker_name': 'JustinWorker',
                       'worker_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                       'worker_time_in_previous_activity': '26',
+                      'worker_time_in_previous_activity_ms': '26123',
                       'workspace_name': 'WorkspaceName',
                       'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
                   },
                   'event_date': '2015-02-07T00:32:41Z',
+                  'event_date_ms': 987654321111,
                   'event_type': 'worker.activity',
                   'resource_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'resource_type': 'worker',
@@ -147,60 +126,232 @@ describe('Event', function() {
                   'sid': 'EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'source': 'twilio',
                   'source_ip_address': '1.2.3.4',
+                  'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events/EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
               }
           ],
           'meta': {
-              'first_page_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?PageSize=50&Page=0',
+              'first_page_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0',
               'key': 'events',
               'next_page_url': null,
               'page': 0,
               'page_size': 50,
               'previous_page_url': null,
-              'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?PageSize=50&Page=0'
+              'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0'
           }
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.taskrouter.v1.workspaces('WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                          .events.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'events': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_type': 'workspace',
+                  'actor_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'description': 'Worker JustinWorker updated to Idle Activity',
+                  'event_data': {
+                      'worker_activity_name': 'Offline',
+                      'worker_activity_sid': 'WAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'worker_attributes': '{}',
+                      'worker_name': 'JustinWorker',
+                      'worker_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'worker_time_in_previous_activity': '26',
+                      'worker_time_in_previous_activity_ms': '26123',
+                      'workspace_name': 'WorkspaceName',
+                      'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'event_date': '2015-02-07T00:32:41Z',
+                  'event_date_ms': 987654321111,
+                  'event_type': 'worker.activity',
+                  'resource_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'resource_type': 'worker',
+                  'resource_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Workers/WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source': 'twilio',
+                  'source_ip_address': '1.2.3.4',
+                  'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events/EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0',
+              'key': 'events',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.taskrouter.v1.workspaces('WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                          .events.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://taskrouter.twilio.com/v1/Workspaces/${workspaceSid}/Events',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'events': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_type': 'workspace',
+                  'actor_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'description': 'Worker JustinWorker updated to Idle Activity',
+                  'event_data': {
+                      'worker_activity_name': 'Offline',
+                      'worker_activity_sid': 'WAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'worker_attributes': '{}',
+                      'worker_name': 'JustinWorker',
+                      'worker_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'worker_time_in_previous_activity': '26',
+                      'worker_time_in_previous_activity_ms': '26123',
+                      'workspace_name': 'WorkspaceName',
+                      'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'event_date': '2015-02-07T00:32:41Z',
+                  'event_date_ms': 987654321111,
+                  'event_type': 'worker.activity',
+                  'resource_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'resource_type': 'worker',
+                  'resource_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Workers/WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source': 'twilio',
+                  'source_ip_address': '1.2.3.4',
+                  'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events/EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0',
+              'key': 'events',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.taskrouter.v1.workspaces('WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                          .events.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.taskrouter.v1.workspaces('WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                        .events.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var workspaceSid = 'WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://taskrouter.twilio.com/v1/Workspaces/${workspaceSid}/Events`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'events': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_type': 'workspace',
+                  'actor_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'description': 'Worker JustinWorker updated to Idle Activity',
+                  'event_data': {
+                      'worker_activity_name': 'Offline',
+                      'worker_activity_sid': 'WAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'worker_attributes': '{}',
+                      'worker_name': 'JustinWorker',
+                      'worker_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'worker_time_in_previous_activity': '26',
+                      'worker_time_in_previous_activity_ms': '26123',
+                      'workspace_name': 'WorkspaceName',
+                      'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'event_date': '2015-02-07T00:32:41Z',
+                  'event_date_ms': 987654321111,
+                  'event_type': 'worker.activity',
+                  'resource_sid': 'WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'resource_type': 'worker',
+                  'resource_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Workers/WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source': 'twilio',
+                  'source_ip_address': '1.2.3.4',
+                  'workspace_sid': 'WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events/EVaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0',
+              'key': 'events',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0'
+          }
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.taskrouter.v1.workspaces('WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.taskrouter.v1.workspaces('WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                         .events.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'events': [],
           'meta': {
-              'first_page_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?PageSize=50&Page=0',
+              'first_page_url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0',
               'key': 'events',
               'next_page_url': null,
               'page': 0,
               'page_size': 50,
               'previous_page_url': null,
-              'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?PageSize=50&Page=0'
+              'url': 'https://taskrouter.twilio.com/v1/Workspaces/WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Events?TaskQueueSid=WQaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&StartDate=2008-01-02T00%3A00%3A00Z&EndDate=2008-01-03T00%3A00%3A00Z&WorkerSid=WKaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&EventType=reservation.created&TaskSid=WTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&WorkflowSid=WWaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&ReservationSid=WRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&PageSize=50&Page=0'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.taskrouter.v1.workspaces('WSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.taskrouter.v1.workspaces('WSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                         .events.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

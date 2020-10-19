@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,24 +25,24 @@ var holodeck;
 describe('AvailableAddOn', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.preview.marketplace.availableAddOns('XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.preview.marketplace.availableAddOns('XBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {sid: 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://preview.twilio.com/marketplace/AvailableAddOns/<%= sid %>')(solution);
+      var sid = 'XBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://preview.twilio.com/marketplace/AvailableAddOns/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -52,8 +51,8 @@ describe('AvailableAddOn', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'friendly_name': 'VoiceBase High Accuracy Transcription',
           'description': 'Automatic Transcription and Keyword Extract...',
@@ -73,43 +72,22 @@ describe('AvailableAddOn', function() {
           'links': {
               'extensions': 'https://preview.twilio.com/marketplace/AvailableAddOns/XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.marketplace.availableAddOns('XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.preview.marketplace.availableAddOns('XBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.preview.marketplace.availableAddOns.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var url = 'https://preview.twilio.com/marketplace/AvailableAddOns';
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'available_add_ons': [
               {
                   'sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -142,23 +120,167 @@ describe('AvailableAddOn', function() {
               'next_page_url': null,
               'key': 'available_add_ons'
           }
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.marketplace.availableAddOns.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'available_add_ons': [
+              {
+                  'sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': 'VoiceBase High Accuracy Transcription',
+                  'description': 'Automatic Transcription and Keyword Extract...',
+                  'pricing_type': 'per minute',
+                  'configuration_schema': {
+                      'type': 'object',
+                      'properties': {
+                          'bad_words': {
+                              'type': 'boolean'
+                          }
+                      },
+                      'required': [
+                          'bad_words'
+                      ]
+                  },
+                  'url': 'https://preview.twilio.com/marketplace/AvailableAddOns/XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'links': {
+                      'extensions': 'https://preview.twilio.com/marketplace/AvailableAddOns/XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions'
+                  }
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://preview.twilio.com/marketplace/AvailableAddOns?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/marketplace/AvailableAddOns?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'available_add_ons'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.marketplace.availableAddOns.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://preview.twilio.com/marketplace/AvailableAddOns',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'available_add_ons': [
+              {
+                  'sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': 'VoiceBase High Accuracy Transcription',
+                  'description': 'Automatic Transcription and Keyword Extract...',
+                  'pricing_type': 'per minute',
+                  'configuration_schema': {
+                      'type': 'object',
+                      'properties': {
+                          'bad_words': {
+                              'type': 'boolean'
+                          }
+                      },
+                      'required': [
+                          'bad_words'
+                      ]
+                  },
+                  'url': 'https://preview.twilio.com/marketplace/AvailableAddOns/XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'links': {
+                      'extensions': 'https://preview.twilio.com/marketplace/AvailableAddOns/XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions'
+                  }
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://preview.twilio.com/marketplace/AvailableAddOns?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/marketplace/AvailableAddOns?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'available_add_ons'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.marketplace.availableAddOns.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.preview.marketplace.availableAddOns.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var url = 'https://preview.twilio.com/marketplace/AvailableAddOns';
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'available_add_ons': [
+              {
+                  'sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': 'VoiceBase High Accuracy Transcription',
+                  'description': 'Automatic Transcription and Keyword Extract...',
+                  'pricing_type': 'per minute',
+                  'configuration_schema': {
+                      'type': 'object',
+                      'properties': {
+                          'bad_words': {
+                              'type': 'boolean'
+                          }
+                      },
+                      'required': [
+                          'bad_words'
+                      ]
+                  },
+                  'url': 'https://preview.twilio.com/marketplace/AvailableAddOns/XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'links': {
+                      'extensions': 'https://preview.twilio.com/marketplace/AvailableAddOns/XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions'
+                  }
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://preview.twilio.com/marketplace/AvailableAddOns?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/marketplace/AvailableAddOns?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'available_add_ons'
+          }
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.preview.marketplace.availableAddOns.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'available_add_ons': [],
           'meta': {
               'page': 0,
@@ -169,19 +291,17 @@ describe('AvailableAddOn', function() {
               'next_page_url': null,
               'key': 'available_add_ons'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.preview.marketplace.availableAddOns.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

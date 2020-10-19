@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,30 +25,28 @@ var holodeck;
 describe('Member', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .members('MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .members('MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        channelSid: 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://chat.twilio.com/v2/Services/<%= serviceSid %>/Channels/<%= channelSid %>/Members/<%= sid %>')(solution);
+      var serviceSid = 'ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var channelSid = 'CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://chat.twilio.com/v2/Services/${serviceSid}/Channels/${channelSid}/Members/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -58,8 +55,8 @@ describe('Member', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'channel_sid': 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -70,55 +67,60 @@ describe('Member', function() {
           'last_consumption_timestamp': null,
           'date_created': '2016-03-24T21:05:50Z',
           'date_updated': '2016-03-24T21:05:50Z',
+          'attributes': '{}',
           'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members/MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .members('MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .members('MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var opts = {identity: 'identity'};
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {identity: 'identity', xTwilioWebhookEnabled: 'true'};
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                          .members.create(opts);
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        channelSid: 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://chat.twilio.com/v2/Services/<%= serviceSid %>/Channels/<%= channelSid %>/Members')(solution);
+      var serviceSid = 'ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var channelSid = 'CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://chat.twilio.com/v2/Services/${serviceSid}/Channels/${channelSid}/Members`;
 
-      var values = {Identity: 'identity'};
+      var values = {Identity: 'identity', };
       holodeck.assertHasRequest(new Request({
           method: 'POST',
           url: url,
           data: values
       }));
+
+      var headers = {'X-Twilio-Webhook-Enabled': 'true'};
+      holodeck.assertHasRequest(new Request({
+        method: 'POST',
+        url: url,
+        headers: headers
+      }));
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'channel_sid': 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -129,53 +131,27 @@ describe('Member', function() {
           'last_consumption_timestamp': null,
           'date_created': '2016-03-24T21:05:50Z',
           'date_updated': '2016-03-24T21:05:50Z',
+          'attributes': '{}',
           'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members/MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(201, body));
 
       var opts = {identity: 'identity'};
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                          .members.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .members.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {
-        serviceSid: 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        channelSid: 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://chat.twilio.com/v2/Services/<%= serviceSid %>/Channels/<%= channelSid %>/Members')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'meta': {
               'page': 0,
               'page_size': 50,
@@ -197,28 +173,162 @@ describe('Member', function() {
                   'last_consumption_timestamp': null,
                   'date_created': '2016-03-24T21:05:50Z',
                   'date_updated': '2016-03-24T21:05:50Z',
+                  'attributes': '{}',
                   'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members/MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
               }
           ]
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                           .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                           .members.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'members'
+          },
+          'members': [
+              {
+                  'sid': 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'channel_sid': 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'identity': 'jing',
+                  'role_sid': 'RLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'last_consumed_message_index': null,
+                  'last_consumption_timestamp': null,
+                  'date_created': '2016-03-24T21:05:50Z',
+                  'date_updated': '2016-03-24T21:05:50Z',
+                  'attributes': '{}',
+                  'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members/MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ]
+      };
+      holodeck.mock(new Response(200, body));
+      client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                           .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                           .members.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://chat.twilio.com/v2/Services/${serviceSid}/Channels/${channelSid}/Members',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'members'
+          },
+          'members': [
+              {
+                  'sid': 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'channel_sid': 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'identity': 'jing',
+                  'role_sid': 'RLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'last_consumed_message_index': null,
+                  'last_consumption_timestamp': null,
+                  'date_created': '2016-03-24T21:05:50Z',
+                  'date_updated': '2016-03-24T21:05:50Z',
+                  'attributes': '{}',
+                  'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members/MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ]
+      };
+      holodeck.mock(new Response(200, body));
+      client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                           .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                           .members.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .members.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var serviceSid = 'ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var channelSid = 'CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://chat.twilio.com/v2/Services/${serviceSid}/Channels/${channelSid}/Members`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'members'
+          },
+          'members': [
+              {
+                  'sid': 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'channel_sid': 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'identity': 'jing',
+                  'role_sid': 'RLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'last_consumed_message_index': null,
+                  'last_consumption_timestamp': null,
+                  'date_created': '2016-03-24T21:05:50Z',
+                  'date_updated': '2016-03-24T21:05:50Z',
+                  'attributes': '{}',
+                  'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members/MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ]
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                          .members.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'meta': {
               'page': 0,
               'page_size': 50,
@@ -229,97 +339,97 @@ describe('Member', function() {
               'key': 'members'
           },
           'members': []
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                          .members.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid remove request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .members('MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function() {
+      var opts = {xTwilioWebhookEnabled: 'true'};
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .members('MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove(opts);
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        channelSid: 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://chat.twilio.com/v2/Services/<%= serviceSid %>/Channels/<%= channelSid %>/Members/<%= sid %>')(solution);
+      var serviceSid = 'ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var channelSid = 'CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://chat.twilio.com/v2/Services/${serviceSid}/Channels/${channelSid}/Members/${sid}`;
 
+      var headers = {'X-Twilio-Webhook-Enabled': 'true'};
       holodeck.assertHasRequest(new Request({
         method: 'DELETE',
-        url: url
+        url: url,
+        headers: headers
       }));
     }
   );
   it('should generate valid delete response',
-    function() {
-      var body = JSON.stringify(null);
+    function(done) {
+      var body = null;
 
       holodeck.mock(new Response(204, body));
 
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .members('MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function(response) {
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .members('MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
         expect(response).toBe(true);
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid update request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .members('MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function() {
+      var opts = {xTwilioWebhookEnabled: 'true'};
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .members('MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update(opts);
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        channelSid: 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://chat.twilio.com/v2/Services/<%= serviceSid %>/Channels/<%= channelSid %>/Members/<%= sid %>')(solution);
+      var serviceSid = 'ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var channelSid = 'CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://chat.twilio.com/v2/Services/${serviceSid}/Channels/${channelSid}/Members/${sid}`;
 
+      var headers = {'X-Twilio-Webhook-Enabled': 'true'};
       holodeck.assertHasRequest(new Request({
         method: 'POST',
-        url: url
+        url: url,
+        headers: headers
       }));
     }
   );
   it('should generate valid update_role_sid response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'channel_sid': 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -330,22 +440,21 @@ describe('Member', function() {
           'last_consumption_timestamp': '2016-03-24T21:05:52Z',
           'date_created': '2016-03-24T21:05:50Z',
           'date_updated': '2016-03-24T21:05:51Z',
+          'attributes': '{}',
           'url': 'https://chat.twilio.com/v2/Services/ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Channels/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Members/MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.ipMessaging.v2.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .channels('CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                         .members('MBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function(response) {
+      var promise = client.ipMessaging.v2.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .channels('CHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                         .members('MBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

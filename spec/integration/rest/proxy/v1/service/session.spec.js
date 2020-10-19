@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,28 +25,26 @@ var holodeck;
 describe('Session', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://proxy.twilio.com/v1/Services/<%= serviceSid %>/Sessions/<%= sid %>')(solution);
+      var serviceSid = 'KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://proxy.twilio.com/v1/Services/${serviceSid}/Sessions/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -56,17 +53,17 @@ describe('Session', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'service_sid': 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          'status': 'in-progress',
-          'unique_name': 'unique_name',
+          'status': 'open',
+          'unique_name': 'Order #1234',
           'date_started': '2015-07-30T20:00:00Z',
           'date_ended': '2015-07-30T20:00:00Z',
           'date_last_interaction': '2015-07-30T20:00:00Z',
           'date_expiry': '2015-07-30T20:00:00Z',
           'ttl': 3600,
-          'mode': 'message-only',
+          'mode': 'voice-and-message',
           'closed_reason': '',
           'sid': 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'date_updated': '2015-07-30T20:00:00Z',
@@ -77,36 +74,35 @@ describe('Session', function() {
               'interactions': 'https://proxy.twilio.com/v1/Services/KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Sessions/KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Interactions',
               'participants': 'https://proxy.twilio.com/v1/Services/KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Sessions/KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .sessions.list();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {serviceSid: 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://proxy.twilio.com/v1/Services/<%= serviceSid %>/Sessions')(solution);
+      var serviceSid = 'KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://proxy.twilio.com/v1/Services/${serviceSid}/Sessions`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -115,8 +111,8 @@ describe('Session', function() {
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sessions': [],
           'meta': {
               'previous_page_url': null,
@@ -127,36 +123,35 @@ describe('Session', function() {
               'page_size': 50,
               'key': 'sessions'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .sessions.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .sessions.create();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {serviceSid: 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://proxy.twilio.com/v1/Services/<%= serviceSid %>/Sessions')(solution);
+      var serviceSid = 'KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://proxy.twilio.com/v1/Services/${serviceSid}/Sessions`;
 
       holodeck.assertHasRequest(new Request({
         method: 'POST',
@@ -165,17 +160,17 @@ describe('Session', function() {
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'service_sid': 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          'status': 'in-progress',
-          'unique_name': 'unique_name',
+          'status': 'open',
+          'unique_name': 'Order #1234',
           'date_started': '2015-07-30T20:00:00Z',
           'date_ended': '2015-07-30T20:00:00Z',
           'date_last_interaction': '2015-07-30T20:00:00Z',
           'date_expiry': '2015-07-30T20:00:00Z',
           'ttl': 3600,
-          'mode': 'message-only',
+          'mode': 'voice-and-message',
           'closed_reason': '',
           'sid': 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'date_updated': '2015-07-30T20:00:00Z',
@@ -186,39 +181,36 @@ describe('Session', function() {
               'interactions': 'https://proxy.twilio.com/v1/Services/KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Sessions/KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Interactions',
               'participants': 'https://proxy.twilio.com/v1/Services/KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Sessions/KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants'
           }
-      });
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .sessions.create();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid remove request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function() {
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://proxy.twilio.com/v1/Services/<%= serviceSid %>/Sessions/<%= sid %>')(solution);
+      var serviceSid = 'KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://proxy.twilio.com/v1/Services/${serviceSid}/Sessions/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'DELETE',
@@ -227,40 +219,37 @@ describe('Session', function() {
     }
   );
   it('should generate valid delete response',
-    function() {
-      var body = JSON.stringify(null);
+    function(done) {
+      var body = null;
 
       holodeck.mock(new Response(204, body));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function(response) {
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
         expect(response).toBe(true);
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid update request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function() {
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://proxy.twilio.com/v1/Services/<%= serviceSid %>/Sessions/<%= sid %>')(solution);
+      var serviceSid = 'KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://proxy.twilio.com/v1/Services/${serviceSid}/Sessions/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'POST',
@@ -269,17 +258,17 @@ describe('Session', function() {
     }
   );
   it('should generate valid update response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'service_sid': 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'status': 'in-progress',
-          'unique_name': 'unique_name',
+          'unique_name': 'Order #1234',
           'date_started': '2015-07-30T20:00:00Z',
           'date_ended': '2015-07-30T20:00:00Z',
           'date_last_interaction': '2015-07-30T20:00:00Z',
           'date_expiry': '2015-07-30T20:00:00Z',
           'ttl': 3600,
-          'mode': 'message-only',
+          'mode': 'voice-and-message',
           'closed_reason': '',
           'sid': 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'date_updated': '2015-07-30T20:00:00Z',
@@ -290,20 +279,18 @@ describe('Session', function() {
               'interactions': 'https://proxy.twilio.com/v1/Services/KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Sessions/KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Interactions',
               'participants': 'https://proxy.twilio.com/v1/Services/KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Sessions/KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function(response) {
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

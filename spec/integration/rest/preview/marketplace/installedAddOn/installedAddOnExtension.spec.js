@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -28,28 +27,26 @@ var holodeck;
 describe('InstalledAddOnExtension', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.preview.marketplace.installedAddOns('XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                              .extensions('XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                              .extensions('XFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        installedAddOnSid: 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://preview.twilio.com/marketplace/InstalledAddOns/<%= installedAddOnSid %>/Extensions/<%= sid %>')(solution);
+      var installedAddOnSid = 'XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'XFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://preview.twilio.com/marketplace/InstalledAddOns/${installedAddOnSid}/Extensions/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -58,8 +55,8 @@ describe('InstalledAddOnExtension', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'installed_add_on_sid': 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'friendly_name': 'Incoming Voice Call',
@@ -67,42 +64,39 @@ describe('InstalledAddOnExtension', function() {
           'unique_name': 'voice-incoming',
           'enabled': true,
           'url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions/XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.marketplace.installedAddOns('XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                              .extensions('XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                              .extensions('XFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid update request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
       var opts = {enabled: true};
-      var promise = client.preview.marketplace.installedAddOns('XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                              .extensions('XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update(opts);
-      promise = promise.then(function() {
+      var promise = client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                              .extensions('XFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update(opts);
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        installedAddOnSid: 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://preview.twilio.com/marketplace/InstalledAddOns/<%= installedAddOnSid %>/Extensions/<%= sid %>')(solution);
+      var installedAddOnSid = 'XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'XFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://preview.twilio.com/marketplace/InstalledAddOns/${installedAddOnSid}/Extensions/${sid}`;
 
-      var values = {Enabled: serialize.bool(true)};
+      var values = {Enabled: serialize.bool(true), };
       holodeck.assertHasRequest(new Request({
           method: 'POST',
           url: url,
@@ -111,8 +105,8 @@ describe('InstalledAddOnExtension', function() {
     }
   );
   it('should generate valid update response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'installed_add_on_sid': 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'friendly_name': 'Incoming Voice Call',
@@ -120,47 +114,24 @@ describe('InstalledAddOnExtension', function() {
           'unique_name': 'voice-incoming',
           'enabled': false,
           'url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions/XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
       var opts = {enabled: true};
-      var promise = client.preview.marketplace.installedAddOns('XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                              .extensions('XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update(opts);
-      promise = promise.then(function(response) {
+      var promise = client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                              .extensions('XFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update(opts);
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.preview.marketplace.installedAddOns('XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                              .extensions.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {installedAddOnSid: 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://preview.twilio.com/marketplace/InstalledAddOns/<%= installedAddOnSid %>/Extensions')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'extensions': [
               {
                   'sid': 'XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -181,24 +152,137 @@ describe('InstalledAddOnExtension', function() {
               'next_page_url': null,
               'key': 'extensions'
           }
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                .extensions.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'extensions': [
+              {
+                  'sid': 'XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'installed_add_on_sid': 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': 'Incoming Voice Call',
+                  'product_name': 'Programmable Voice',
+                  'unique_name': 'voice-incoming',
+                  'enabled': true,
+                  'url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions/XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'extensions'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                .extensions.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://preview.twilio.com/marketplace/InstalledAddOns/${installedAddOnSid}/Extensions',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'extensions': [
+              {
+                  'sid': 'XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'installed_add_on_sid': 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': 'Incoming Voice Call',
+                  'product_name': 'Programmable Voice',
+                  'unique_name': 'voice-incoming',
+                  'enabled': true,
+                  'url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions/XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'extensions'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                .extensions.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                              .extensions.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var installedAddOnSid = 'XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://preview.twilio.com/marketplace/InstalledAddOns/${installedAddOnSid}/Extensions`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'extensions': [
+              {
+                  'sid': 'XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'installed_add_on_sid': 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'friendly_name': 'Incoming Voice Call',
+                  'product_name': 'Programmable Voice',
+                  'unique_name': 'voice-incoming',
+                  'enabled': true,
+                  'url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions/XFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/marketplace/InstalledAddOns/XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Extensions?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'extensions'
+          }
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.marketplace.installedAddOns('XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                               .extensions.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'extensions': [],
           'meta': {
               'page': 0,
@@ -209,20 +293,18 @@ describe('InstalledAddOnExtension', function() {
               'next_page_url': null,
               'key': 'extensions'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.marketplace.installedAddOns('XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.preview.marketplace.installedAddOns('XEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                               .extensions.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

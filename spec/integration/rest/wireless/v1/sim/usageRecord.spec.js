@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,42 +25,68 @@ var holodeck;
 describe('UsageRecord', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.wireless.v1.sims('DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                      .usageRecords.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {simSid: 'DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://wireless.twilio.com/v1/Sims/<%= simSid %>/UsageRecords')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'usage_records': [
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                  'commands': {},
-                  'data': {},
+                  'commands': {
+                      'billing_units': 'USD',
+                      'billed': 0,
+                      'total': 3,
+                      'from_sim': 1,
+                      'to_sim': 2,
+                      'home': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 3,
+                          'from_sim': 1,
+                          'to_sim': 2
+                      },
+                      'national_roaming': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 0,
+                          'from_sim': 0,
+                          'to_sim': 0
+                      },
+                      'international_roaming': []
+                  },
+                  'data': {
+                      'billing_units': 'USD',
+                      'billed': 0.35,
+                      'total': 3494609,
+                      'upload': 731560,
+                      'download': 2763049,
+                      'units': 'bytes',
+                      'home': {
+                          'billing_units': 'USD',
+                          'billed': 0.35,
+                          'total': 3494609,
+                          'upload': 731560,
+                          'download': 2763049,
+                          'units': 'bytes'
+                      },
+                      'national_roaming': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 0,
+                          'upload': 0,
+                          'download': 0,
+                          'units': 'bytes'
+                      },
+                      'international_roaming': []
+                  },
                   'sim_sid': 'DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                  'period': {}
+                  'period': {
+                      'start': '2015-07-30T20:00:00Z',
+                      'end': '2015-07-30T20:00:00Z'
+                  }
               },
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -72,28 +97,299 @@ describe('UsageRecord', function() {
               }
           ],
           'meta': {
-              'first_page_url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?PageSize=50&Page=0',
+              'first_page_url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?Start=2015-07-30T20%3A00%3A00Z&End=2015-07-30T20%3A00%3A00Z&PageSize=50&Page=0',
               'key': 'usage_records',
               'next_page_url': null,
               'page': 0,
               'page_size': 50,
               'previous_page_url': null,
-              'url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?PageSize=50&Page=0'
+              'url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?Start=2015-07-30T20%3A00%3A00Z&End=2015-07-30T20%3A00%3A00Z&PageSize=50&Page=0'
           }
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.wireless.v1.sims('DEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                        .usageRecords.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'usage_records': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'commands': {
+                      'billing_units': 'USD',
+                      'billed': 0,
+                      'total': 3,
+                      'from_sim': 1,
+                      'to_sim': 2,
+                      'home': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 3,
+                          'from_sim': 1,
+                          'to_sim': 2
+                      },
+                      'national_roaming': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 0,
+                          'from_sim': 0,
+                          'to_sim': 0
+                      },
+                      'international_roaming': []
+                  },
+                  'data': {
+                      'billing_units': 'USD',
+                      'billed': 0.35,
+                      'total': 3494609,
+                      'upload': 731560,
+                      'download': 2763049,
+                      'units': 'bytes',
+                      'home': {
+                          'billing_units': 'USD',
+                          'billed': 0.35,
+                          'total': 3494609,
+                          'upload': 731560,
+                          'download': 2763049,
+                          'units': 'bytes'
+                      },
+                      'national_roaming': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 0,
+                          'upload': 0,
+                          'download': 0,
+                          'units': 'bytes'
+                      },
+                      'international_roaming': []
+                  },
+                  'sim_sid': 'DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'period': {
+                      'start': '2015-07-30T20:00:00Z',
+                      'end': '2015-07-30T20:00:00Z'
+                  }
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'commands': {},
+                  'data': {},
+                  'sim_sid': 'DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'period': {}
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?Start=2015-07-30T20%3A00%3A00Z&End=2015-07-30T20%3A00%3A00Z&PageSize=50&Page=0',
+              'key': 'usage_records',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?Start=2015-07-30T20%3A00%3A00Z&End=2015-07-30T20%3A00%3A00Z&PageSize=50&Page=0'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.wireless.v1.sims('DEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                        .usageRecords.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://wireless.twilio.com/v1/Sims/${simSid}/UsageRecords',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'usage_records': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'commands': {
+                      'billing_units': 'USD',
+                      'billed': 0,
+                      'total': 3,
+                      'from_sim': 1,
+                      'to_sim': 2,
+                      'home': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 3,
+                          'from_sim': 1,
+                          'to_sim': 2
+                      },
+                      'national_roaming': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 0,
+                          'from_sim': 0,
+                          'to_sim': 0
+                      },
+                      'international_roaming': []
+                  },
+                  'data': {
+                      'billing_units': 'USD',
+                      'billed': 0.35,
+                      'total': 3494609,
+                      'upload': 731560,
+                      'download': 2763049,
+                      'units': 'bytes',
+                      'home': {
+                          'billing_units': 'USD',
+                          'billed': 0.35,
+                          'total': 3494609,
+                          'upload': 731560,
+                          'download': 2763049,
+                          'units': 'bytes'
+                      },
+                      'national_roaming': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 0,
+                          'upload': 0,
+                          'download': 0,
+                          'units': 'bytes'
+                      },
+                      'international_roaming': []
+                  },
+                  'sim_sid': 'DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'period': {
+                      'start': '2015-07-30T20:00:00Z',
+                      'end': '2015-07-30T20:00:00Z'
+                  }
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'commands': {},
+                  'data': {},
+                  'sim_sid': 'DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'period': {}
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?Start=2015-07-30T20%3A00%3A00Z&End=2015-07-30T20%3A00%3A00Z&PageSize=50&Page=0',
+              'key': 'usage_records',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?Start=2015-07-30T20%3A00%3A00Z&End=2015-07-30T20%3A00%3A00Z&PageSize=50&Page=0'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.wireless.v1.sims('DEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                        .usageRecords.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.wireless.v1.sims('DEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                      .usageRecords.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var simSid = 'DEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://wireless.twilio.com/v1/Sims/${simSid}/UsageRecords`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid fetch response',
+    function(done) {
+      var body = {
+          'usage_records': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'commands': {
+                      'billing_units': 'USD',
+                      'billed': 0,
+                      'total': 3,
+                      'from_sim': 1,
+                      'to_sim': 2,
+                      'home': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 3,
+                          'from_sim': 1,
+                          'to_sim': 2
+                      },
+                      'national_roaming': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 0,
+                          'from_sim': 0,
+                          'to_sim': 0
+                      },
+                      'international_roaming': []
+                  },
+                  'data': {
+                      'billing_units': 'USD',
+                      'billed': 0.35,
+                      'total': 3494609,
+                      'upload': 731560,
+                      'download': 2763049,
+                      'units': 'bytes',
+                      'home': {
+                          'billing_units': 'USD',
+                          'billed': 0.35,
+                          'total': 3494609,
+                          'upload': 731560,
+                          'download': 2763049,
+                          'units': 'bytes'
+                      },
+                      'national_roaming': {
+                          'billing_units': 'USD',
+                          'billed': 0,
+                          'total': 0,
+                          'upload': 0,
+                          'download': 0,
+                          'units': 'bytes'
+                      },
+                      'international_roaming': []
+                  },
+                  'sim_sid': 'DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'period': {
+                      'start': '2015-07-30T20:00:00Z',
+                      'end': '2015-07-30T20:00:00Z'
+                  }
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'commands': {},
+                  'data': {},
+                  'sim_sid': 'DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'period': {}
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?Start=2015-07-30T20%3A00%3A00Z&End=2015-07-30T20%3A00%3A00Z&PageSize=50&Page=0',
+              'key': 'usage_records',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://wireless.twilio.com/v1/Sims/DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/UsageRecords?Start=2015-07-30T20%3A00%3A00Z&End=2015-07-30T20%3A00%3A00Z&PageSize=50&Page=0'
+          }
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.wireless.v1.sims('DEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.wireless.v1.sims('DEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                       .usageRecords.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

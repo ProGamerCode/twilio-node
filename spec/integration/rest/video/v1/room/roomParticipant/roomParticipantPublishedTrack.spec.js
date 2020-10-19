@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,30 +25,28 @@ var holodeck;
 describe('PublishedTrack', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .publishedTracks('MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('PAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .publishedTracks('MTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        roomSid: 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        participantSid: 'PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://video.twilio.com/v1/Rooms/<%= roomSid %>/Participants/<%= participantSid %>/PublishedTracks/<%= sid %>')(solution);
+      var roomSid = 'RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var participantSid = 'PAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'MTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://video.twilio.com/v1/Rooms/${roomSid}/Participants/${participantSid}/PublishedTracks/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -58,8 +55,8 @@ describe('PublishedTrack', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'date_created': '2015-07-30T20:00:00Z',
           'date_updated': '2015-07-30T20:00:00Z',
@@ -69,41 +66,38 @@ describe('PublishedTrack', function() {
           'kind': 'data',
           'enabled': true,
           'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/PublishedTracks/MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .publishedTracks('MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('PAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .publishedTracks('MTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('PAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .publishedTracks.list();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        roomSid: 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        participantSid: 'PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://video.twilio.com/v1/Rooms/<%= roomSid %>/Participants/<%= participantSid %>/PublishedTracks')(solution);
+      var roomSid = 'RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var participantSid = 'PAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://video.twilio.com/v1/Rooms/${roomSid}/Participants/${participantSid}/PublishedTracks`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -112,8 +106,8 @@ describe('PublishedTrack', function() {
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'published_tracks': [],
           'meta': {
               'page': 0,
@@ -124,21 +118,19 @@ describe('PublishedTrack', function() {
               'next_page_url': null,
               'key': 'published_tracks'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('PAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .publishedTracks.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

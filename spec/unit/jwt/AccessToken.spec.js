@@ -1,8 +1,7 @@
 var twilio = require('../../../index');
 var jwt = require('jsonwebtoken');
-var deprecate = require('deprecate');
 
-deprecate.silence = true;
+process.noDeprecation = true;
 
 describe('AccessToken', function() {
   var accountSid = 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -27,6 +26,11 @@ describe('AccessToken', function() {
     });
     it('should require secret', function() {
       expect(initWithoutIndex(2)).toThrow(new Error('secret is required'));
+    });
+    it('should convert identity from integer to string', function () {
+      var token = new twilio.jwt.AccessToken(accountSid, keySid, 'secret', { identity: 4444 });
+      var decoded = jwt.decode(token.toJwt());
+      expect(decoded.grants.identity).toEqual('4444');
     });
   });
 
@@ -416,6 +420,16 @@ describe('AccessToken', function() {
           },
           endpoint_id: 'id'
         });
+      });
+
+      it('should set incoming.allow if incomingAllow === true', function() {
+        var grant = new twilio.jwt.AccessToken.VoiceGrant({ incomingAllow: true });
+        expect(grant.toPayload()).toEqual({ incoming: { allow: true } });
+      });
+
+      it('should not set incoming.allow if incomingAllow !== true', function() {
+        var grant = new twilio.jwt.AccessToken.VoiceGrant({ incomingAllow: 'foo' });
+        expect(grant.toPayload()).toEqual({ });
       });
     });
 

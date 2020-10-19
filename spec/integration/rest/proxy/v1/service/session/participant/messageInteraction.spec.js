@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,31 +25,29 @@ var holodeck;
 describe('MessageInteraction', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .messageInteractions.create();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sessionSid: 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        participantSid: 'KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://proxy.twilio.com/v1/Services/<%= serviceSid %>/Sessions/<%= sessionSid %>/Participants/<%= participantSid %>/MessageInteractions')(solution);
+      var serviceSid = 'KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sessionSid = 'KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var participantSid = 'KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://proxy.twilio.com/v1/Services/${serviceSid}/Sessions/${sessionSid}/Participants/${participantSid}/MessageInteractions`;
 
       holodeck.assertHasRequest(new Request({
         method: 'POST',
@@ -59,10 +56,10 @@ describe('MessageInteraction', function() {
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'service_sid': 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          'data': 'body',
+          'data': '{\'body\':\'some message\'}',
           'date_created': '2015-07-30T20:00:00Z',
           'date_updated': '2015-07-30T20:00:00Z',
           'participant_sid': 'KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -81,45 +78,42 @@ describe('MessageInteraction', function() {
           'url': 'https://proxy.twilio.com/v1/Services/KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Sessions/KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/MessageInteractions/KIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'session_sid': 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .messageInteractions.create();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .messageInteractions('KIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .messageInteractions('KIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sessionSid: 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        participantSid: 'KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'KIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://proxy.twilio.com/v1/Services/<%= serviceSid %>/Sessions/<%= sessionSid %>/Participants/<%= participantSid %>/MessageInteractions/<%= sid %>')(solution);
+      var serviceSid = 'KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sessionSid = 'KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var participantSid = 'KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'KIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://proxy.twilio.com/v1/Services/${serviceSid}/Sessions/${sessionSid}/Participants/${participantSid}/MessageInteractions/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -128,10 +122,10 @@ describe('MessageInteraction', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'service_sid': 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          'data': 'data',
+          'data': '{\'body\':\'some message\'}',
           'date_created': '2015-07-30T20:00:00Z',
           'date_updated': '2015-07-30T20:00:00Z',
           'participant_sid': 'KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -150,44 +144,41 @@ describe('MessageInteraction', function() {
           'url': 'https://proxy.twilio.com/v1/Services/KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Sessions/KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/MessageInteractions/KIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'session_sid': 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .messageInteractions('KIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .messageInteractions('KIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .messageInteractions.list();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sessionSid: 'KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        participantSid: 'KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://proxy.twilio.com/v1/Services/<%= serviceSid %>/Sessions/<%= sessionSid %>/Participants/<%= participantSid %>/MessageInteractions')(solution);
+      var serviceSid = 'KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sessionSid = 'KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var participantSid = 'KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://proxy.twilio.com/v1/Services/${serviceSid}/Sessions/${sessionSid}/Participants/${participantSid}/MessageInteractions`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -196,8 +187,8 @@ describe('MessageInteraction', function() {
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'interactions': [],
           'meta': {
               'previous_page_url': null,
@@ -208,22 +199,20 @@ describe('MessageInteraction', function() {
               'page_size': 50,
               'key': 'interactions'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.proxy.v1.services('KSaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .sessions('KCaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .participants('KPaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.proxy.v1.services('KSXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .sessions('KCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .participants('KPXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .messageInteractions.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

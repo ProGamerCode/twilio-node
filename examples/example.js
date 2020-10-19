@@ -1,10 +1,13 @@
 'use strict';
 
-var _ = require('lodash');
 var Twilio = require('../lib');
 
 var accountSid = process.env.TWILIO_ACCOUNT_SID;
 var token = process.env.TWILIO_AUTH_TOKEN;
+
+// Uncomment the following line to specify a custom CA bundle for HTTPS requests:
+// process.env.TWILIO_CA_BUNDLE = '/path/to/cert.pem';
+// You can also set this as a regular environment variable outside of the code
 
 var twilio = new Twilio(accountSid, token);
 
@@ -116,7 +119,7 @@ promise.then(function(trunk) {
 // List messages using callbacks
 twilio.messages.list(function(err, messages) {
   console.log('Listing messages using callbacks');
-  _.each(messages, function(message) {
+  messages.forEach(function (message) {
     console.log(message.sid);
   });
 });
@@ -125,7 +128,7 @@ twilio.messages.list(function(err, messages) {
 promise = twilio.messages.list();
 promise.then(function(messages) {
   console.log('Listing messages using promises');
-  _.each(messages, function(message) {
+  messages.forEach(function (message) {
     console.log(message.sid);
   });
 });

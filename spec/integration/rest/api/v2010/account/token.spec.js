@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,25 +25,25 @@ var holodeck;
 describe('Token', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .tokens.create();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Tokens.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Tokens.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'POST',
@@ -53,38 +52,50 @@ describe('Token', function() {
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
-          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          'date_created': 'Fri, 24 Jul 2015 18:43:58 +0000',
-          'date_updated': 'Fri, 24 Jul 2015 18:43:58 +0000',
+    function(done) {
+      var body = {
+          'username': 'dc2d2894d5a9023620c467b0e71cfa6a35457e6679785ed6ae9856fe5bdfa269',
           'ice_servers': [
               {
-                  'url': 'stun:global.stun:3478?transport=udp'
+                  'url': 'stun:global.stun.twilio.com:3478?transport=udp',
+                  'urls': 'stun:global.stun.twilio.com:3478?transport=udp'
               },
               {
-                  'credential': '5SR2x8mZK1lTFJW3NVgLGw6UM9C0dja4jI/Hdw3xr+w=',
-                  'url': 'turn:global.turn:3478?transport=udp',
-                  'username': 'cda92e5006c7810494639fc466ecc80182cef8183fdf400f84c4126f3b59d0bb'
+                  'username': 'dc2d2894d5a9023620c467b0e71cfa6a35457e6679785ed6ae9856fe5bdfa269',
+                  'credential': 'tE2DajzSJwnsSbc123',
+                  'url': 'turn:global.turn.twilio.com:3478?transport=udp',
+                  'urls': 'turn:global.turn.twilio.com:3478?transport=udp'
+              },
+              {
+                  'username': 'dc2d2894d5a9023620c467b0e71cfa6a35457e6679785ed6ae9856fe5bdfa269',
+                  'credential': 'tE2DajzSJwnsSbc123',
+                  'url': 'turn:global.turn.twilio.com:3478?transport=tcp',
+                  'urls': 'turn:global.turn.twilio.com:3478?transport=tcp'
+              },
+              {
+                  'username': 'dc2d2894d5a9023620c467b0e71cfa6a35457e6679785ed6ae9856fe5bdfa269',
+                  'credential': 'tE2DajzSJwnsSbc123',
+                  'url': 'turn:global.turn.twilio.com:443?transport=tcp',
+                  'urls': 'turn:global.turn.twilio.com:443?transport=tcp'
               }
           ],
-          'password': '5SR2x8mZK1lTFJW3NVgLGw6UM9C0dja4jI/Hdw3xr+w=',
+          'date_updated': 'Fri, 01 May 2020 01:42:57 +0000',
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'ttl': '86400',
-          'username': 'cda92e5006c7810494639fc466ecc80182cef8183fdf400f84c4126f3b59d0bb'
-      });
+          'date_created': 'Fri, 01 May 2020 01:42:57 +0000',
+          'password': 'tE2DajzSJwnsSbc123'
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .tokens.create();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

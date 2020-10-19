@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,28 +25,26 @@ var holodeck;
 describe('RoomRecording', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .recordings('RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .recordings('RTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        roomSid: 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://video.twilio.com/v1/Rooms/<%= roomSid %>/Recordings/<%= sid %>')(solution);
+      var roomSid = 'RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'RTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://video.twilio.com/v1/Rooms/${roomSid}/Recordings/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -56,11 +53,13 @@ describe('RoomRecording', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'status': 'processing',
           'date_created': '2015-07-30T20:00:00Z',
+          'date_updated': '2015-07-30T21:00:00Z',
+          'date_deleted': '2015-07-30T22:00:00Z',
           'sid': 'RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'source_sid': 'MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'size': 0,
@@ -68,87 +67,42 @@ describe('RoomRecording', function() {
           'duration': 0,
           'container_format': 'mka',
           'codec': 'OPUS',
+          'track_name': 'A name',
+          'offset': 10,
           'grouping_sids': {
               'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
           },
+          'media_external_location': 'https://www.twilio.com',
+          'encryption_key': 'public_key',
           'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'links': {
               'media': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Media'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .recordings('RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .recordings('RTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .recordings.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {roomSid: 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://video.twilio.com/v1/Rooms/<%= roomSid %>/Recordings')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
-          'recordings': [],
-          'meta': {
-              'page': 0,
-              'page_size': 50,
-              'first_page_url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?PageSize=50&Page=0',
-              'previous_page_url': null,
-              'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?PageSize=50&Page=0',
-              'next_page_url': null,
-              'key': 'recordings'
-          }
-      });
-
-      holodeck.mock(new Response(200, body));
-
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                   .recordings.list();
-      promise = promise.then(function(response) {
-        expect(response).toBeDefined();
-      }, function() {
-        throw new Error('failed');
-      });
-
-      promise.done();
-    }
-  );
-  it('should generate valid read_results response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'recordings': [
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'status': 'completed',
                   'date_created': '2015-07-30T20:00:00Z',
+                  'date_updated': '2015-07-30T21:00:00Z',
+                  'date_deleted': '2015-07-30T22:00:00Z',
                   'sid': 'RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'source_sid': 'MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'size': 23,
@@ -156,10 +110,14 @@ describe('RoomRecording', function() {
                   'duration': 10,
                   'container_format': 'mka',
                   'codec': 'OPUS',
+                  'track_name': 'A name',
+                  'offset': 10,
                   'grouping_sids': {
                       'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                       'participant_sid': 'PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
                   },
+                  'media_external_location': 'https://www.twilio.com',
+                  'encryption_key': 'public_key',
                   'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'links': {
@@ -170,26 +128,258 @@ describe('RoomRecording', function() {
           'meta': {
               'page': 0,
               'page_size': 50,
+              'first_page_url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?Status=completed&DateCreatedBefore=2017-12-31T23%3A59%3A59Z&DateCreatedAfter=2017-01-01T00%3A00%3A01Z&SourceSid=source_sid&PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?Status=completed&DateCreatedBefore=2017-12-31T23%3A59%3A59Z&DateCreatedAfter=2017-01-01T00%3A00%3A01Z&SourceSid=source_sid&PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'recordings'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                     .recordings.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'recordings': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'status': 'completed',
+                  'date_created': '2015-07-30T20:00:00Z',
+                  'date_updated': '2015-07-30T21:00:00Z',
+                  'date_deleted': '2015-07-30T22:00:00Z',
+                  'sid': 'RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source_sid': 'MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'size': 23,
+                  'type': 'audio',
+                  'duration': 10,
+                  'container_format': 'mka',
+                  'codec': 'OPUS',
+                  'track_name': 'A name',
+                  'offset': 10,
+                  'grouping_sids': {
+                      'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'participant_sid': 'PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'media_external_location': 'https://www.twilio.com',
+                  'encryption_key': 'public_key',
+                  'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'links': {
+                      'media': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Media'
+                  }
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?Status=completed&DateCreatedBefore=2017-12-31T23%3A59%3A59Z&DateCreatedAfter=2017-01-01T00%3A00%3A01Z&SourceSid=source_sid&PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?Status=completed&DateCreatedBefore=2017-12-31T23%3A59%3A59Z&DateCreatedAfter=2017-01-01T00%3A00%3A01Z&SourceSid=source_sid&PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'recordings'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                     .recordings.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://video.twilio.com/v1/Rooms/${roomSid}/Recordings',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'recordings': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'status': 'completed',
+                  'date_created': '2015-07-30T20:00:00Z',
+                  'date_updated': '2015-07-30T21:00:00Z',
+                  'date_deleted': '2015-07-30T22:00:00Z',
+                  'sid': 'RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source_sid': 'MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'size': 23,
+                  'type': 'audio',
+                  'duration': 10,
+                  'container_format': 'mka',
+                  'codec': 'OPUS',
+                  'track_name': 'A name',
+                  'offset': 10,
+                  'grouping_sids': {
+                      'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'participant_sid': 'PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'media_external_location': 'https://www.twilio.com',
+                  'encryption_key': 'public_key',
+                  'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'links': {
+                      'media': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Media'
+                  }
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?Status=completed&DateCreatedBefore=2017-12-31T23%3A59%3A59Z&DateCreatedAfter=2017-01-01T00%3A00%3A01Z&SourceSid=source_sid&PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?Status=completed&DateCreatedBefore=2017-12-31T23%3A59%3A59Z&DateCreatedAfter=2017-01-01T00%3A00%3A01Z&SourceSid=source_sid&PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'recordings'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                     .recordings.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .recordings.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var roomSid = 'RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://video.twilio.com/v1/Rooms/${roomSid}/Recordings`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_empty response',
+    function(done) {
+      var body = {
+          'recordings': [],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
               'first_page_url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?PageSize=50&Page=0',
               'previous_page_url': null,
               'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?PageSize=50&Page=0',
               'next_page_url': null,
               'key': 'recordings'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.video.v1.rooms('RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                    .recordings.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
+      }).done();
+    }
+  );
+  it('should generate valid read_results response',
+    function(done) {
+      var body = {
+          'recordings': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'status': 'completed',
+                  'date_created': '2015-07-30T20:00:00Z',
+                  'date_updated': '2015-07-30T21:00:00Z',
+                  'date_deleted': '2015-07-30T22:00:00Z',
+                  'sid': 'RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source_sid': 'MTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'size': 23,
+                  'type': 'audio',
+                  'duration': 10,
+                  'container_format': 'mka',
+                  'codec': 'OPUS',
+                  'track_name': 'A name',
+                  'offset': 10,
+                  'grouping_sids': {
+                      'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'participant_sid': 'PAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'media_external_location': 'https://www.twilio.com',
+                  'encryption_key': 'public_key',
+                  'room_sid': 'RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'links': {
+                      'media': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/RTaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Media'
+                  }
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?Status=completed&DateCreatedBefore=2017-12-31T23%3A59%3A59Z&DateCreatedAfter=2017-01-01T00%3A00%3A01Z&SourceSid=source_sid&PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://video.twilio.com/v1/Rooms/RMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings?Status=completed&DateCreatedBefore=2017-12-31T23%3A59%3A59Z&DateCreatedAfter=2017-01-01T00%3A00%3A01Z&SourceSid=source_sid&PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'recordings'
+          }
+      };
 
-      promise.done();
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .recordings.list();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid remove request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .recordings('RTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var roomSid = 'RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'RTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://video.twilio.com/v1/Rooms/${roomSid}/Recordings/${sid}`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'DELETE',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid delete response',
+    function(done) {
+      var body = null;
+
+      holodeck.mock(new Response(204, body));
+
+      var promise = client.video.v1.rooms('RMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                   .recordings('RTXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
+        expect(response).toBe(true);
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
     }
   );
 });
-

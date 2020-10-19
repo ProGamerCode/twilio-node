@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,32 +25,30 @@ var holodeck;
 describe('Payload', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .recordings('REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .addOnResults('XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .payloads('XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .payloads('XHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        referenceSid: 'REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        addOnResultSid: 'XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Recordings/<%= referenceSid %>/AddOnResults/<%= addOnResultSid %>/Payloads/<%= sid %>.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var referenceSid = 'REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var addOnResultSid = 'XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'XHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Recordings/${referenceSid}/AddOnResults/${addOnResultSid}/Payloads/${sid}.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -60,8 +57,8 @@ describe('Payload', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'reference_sid': 'REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'add_on_sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -75,54 +72,25 @@ describe('Payload', function() {
           'subresource_uris': {
               'data': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads/XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Data.json'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .recordings('REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .addOnResults('XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .payloads('XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .payloads('XHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .recordings('REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .addOnResults('XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .payloads.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        referenceSid: 'REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        addOnResultSid: 'XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Recordings/<%= referenceSid %>/AddOnResults/<%= addOnResultSid %>/Payloads.json')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'end': 0,
           'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0',
           'next_page_uri': null,
@@ -148,26 +116,164 @@ describe('Payload', function() {
           ],
           'start': 0,
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0'
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .payloads.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0',
+          'next_page_uri': null,
+          'page': 0,
+          'page_size': 50,
+          'previous_page_uri': null,
+          'payloads': [
+              {
+                  'sid': 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'reference_sid': 'REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_configuration_sid': 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_result_sid': 'XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'label': 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'content_type': 'application/json',
+                  'date_created': 'Wed, 01 Sep 2010 15:15:41 +0000',
+                  'date_updated': 'Wed, 01 Sep 2010 15:15:41 +0000',
+                  'subresource_uris': {
+                      'data': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads/XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Data.json'
+                  }
+              }
+          ],
+          'start': 0,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0'
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .payloads.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Recordings/${referenceSid}/AddOnResults/${addOnResultSid}/Payloads.json',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0',
+          'next_page_uri': null,
+          'page': 0,
+          'page_size': 50,
+          'previous_page_uri': null,
+          'payloads': [
+              {
+                  'sid': 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'reference_sid': 'REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_configuration_sid': 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_result_sid': 'XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'label': 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'content_type': 'application/json',
+                  'date_created': 'Wed, 01 Sep 2010 15:15:41 +0000',
+                  'date_updated': 'Wed, 01 Sep 2010 15:15:41 +0000',
+                  'subresource_uris': {
+                      'data': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads/XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Data.json'
+                  }
+              }
+          ],
+          'start': 0,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0'
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .payloads.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .payloads.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var referenceSid = 'REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var addOnResultSid = 'XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Recordings/${referenceSid}/AddOnResults/${addOnResultSid}/Payloads.json`;
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'end': 0,
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0',
+          'next_page_uri': null,
+          'page': 0,
+          'page_size': 50,
+          'previous_page_uri': null,
+          'payloads': [
+              {
+                  'sid': 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'reference_sid': 'REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_sid': 'XBaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_configuration_sid': 'XEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'add_on_result_sid': 'XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'label': 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'content_type': 'application/json',
+                  'date_created': 'Wed, 01 Sep 2010 15:15:41 +0000',
+                  'date_updated': 'Wed, 01 Sep 2010 15:15:41 +0000',
+                  'subresource_uris': {
+                      'data': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads/XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Data.json'
+                  }
+              }
+          ],
+          'start': 0,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0'
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .recordings('REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .addOnResults('XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .payloads.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'end': 0,
           'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0',
           'next_page_uri': null,
@@ -177,45 +283,42 @@ describe('Payload', function() {
           'payloads': [],
           'start': 0,
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/AddOnResults/XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Payloads.json?PageSize=50&Page=0'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .recordings('REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .addOnResults('XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .payloads.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid remove request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .recordings('REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .addOnResults('XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .payloads('XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function() {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .payloads('XHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        referenceSid: 'REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        addOnResultSid: 'XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        sid: 'XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Recordings/<%= referenceSid %>/AddOnResults/<%= addOnResultSid %>/Payloads/<%= sid %>.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var referenceSid = 'REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var addOnResultSid = 'XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var sid = 'XHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Recordings/${referenceSid}/AddOnResults/${addOnResultSid}/Payloads/${sid}.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'DELETE',
@@ -224,23 +327,21 @@ describe('Payload', function() {
     }
   );
   it('should generate valid delete response',
-    function() {
-      var body = JSON.stringify(null);
+    function(done) {
+      var body = null;
 
       holodeck.mock(new Response(204, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .recordings('REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .addOnResults('XRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .payloads('XHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function(response) {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .recordings('REXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .addOnResults('XRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .payloads('XHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
         expect(response).toBe(true);
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../lib/http/request');  /* jshint ignore:line */
@@ -28,24 +27,24 @@ var holodeck;
 describe('HostedNumberOrder', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {sid: 'HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://preview.twilio.com/HostedNumbers/HostedNumberOrders/<%= sid %>')(solution);
+      var sid = 'HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://preview.twilio.com/HostedNumbers/HostedNumberOrders/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -54,10 +53,11 @@ describe('HostedNumberOrder', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'address_sid': 'AD11111111111111111111111111111111',
+          'call_delay': 15,
           'capabilities': {
               'sms': true,
               'voice': false
@@ -69,6 +69,8 @@ describe('HostedNumberOrder', function() {
           'date_created': '2017-03-28T20:06:39Z',
           'date_updated': '2017-03-28T20:06:39Z',
           'email': 'test@twilio.com',
+          'extension': '5105',
+          'failure_reason': '',
           'friendly_name': 'friendly_name',
           'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
           'phone_number': '+14153608311',
@@ -78,36 +80,40 @@ describe('HostedNumberOrder', function() {
           'unique_name': 'foobar',
           'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'verification_attempts': 0,
-          'verification_type': 'phone-call',
-          'verification_document_sid': null
-      });
+          'verification_call_sids': [
+              'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+              'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab'
+          ],
+          'verification_code': '8794',
+          'verification_document_sid': null,
+          'verification_type': 'phone-call'
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid remove request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function() {
+      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {sid: 'HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://preview.twilio.com/HostedNumbers/HostedNumberOrders/<%= sid %>')(solution);
+      var sid = 'HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://preview.twilio.com/HostedNumbers/HostedNumberOrders/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'DELETE',
@@ -116,35 +122,34 @@ describe('HostedNumberOrder', function() {
     }
   );
   it('should generate valid delete response',
-    function() {
-      var body = JSON.stringify(null);
+    function(done) {
+      var body = null;
 
       holodeck.mock(new Response(204, body));
 
-      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function(response) {
+      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
         expect(response).toBe(true);
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid update request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function() {
+      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {sid: 'HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://preview.twilio.com/HostedNumbers/HostedNumberOrders/<%= sid %>')(solution);
+      var sid = 'HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://preview.twilio.com/HostedNumbers/HostedNumberOrders/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'POST',
@@ -153,10 +158,11 @@ describe('HostedNumberOrder', function() {
     }
   );
   it('should generate valid update response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'address_sid': 'AD11111111111111111111111111111111',
+          'call_delay': 15,
           'capabilities': {
               'sms': true,
               'voice': false
@@ -168,6 +174,8 @@ describe('HostedNumberOrder', function() {
           'date_created': '2017-03-28T20:06:39Z',
           'date_updated': '2017-03-28T20:06:39Z',
           'email': 'test+hosted@twilio.com',
+          'extension': '1234',
+          'failure_reason': '',
           'friendly_name': 'new friendly name',
           'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
           'phone_number': '+14153608311',
@@ -177,72 +185,29 @@ describe('HostedNumberOrder', function() {
           'unique_name': 'new unique name',
           'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'verification_attempts': 1,
-          'verification_type': 'phone-call',
-          'verification_document_sid': null
-      });
+          'verification_call_sids': [
+              'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+              'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab'
+          ],
+          'verification_code': '8794',
+          'verification_document_sid': null,
+          'verification_type': 'phone-call'
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function(response) {
+      var promise = client.preview.hosted_numbers.hostedNumberOrders('HRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.preview.hosted_numbers.hostedNumberOrders.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var url = 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders';
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
-          'meta': {
-              'first_page_url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0',
-              'key': 'items',
-              'next_page_url': null,
-              'page': 0,
-              'page_size': 50,
-              'previous_page_url': null,
-              'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0'
-          },
-          'items': []
-      });
-
-      holodeck.mock(new Response(200, body));
-
-      var promise = client.preview.hosted_numbers.hostedNumberOrders.list();
-      promise = promise.then(function(response) {
-        expect(response).toBeDefined();
-      }, function() {
-        throw new Error('failed');
-      });
-
-      promise.done();
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'meta': {
               'first_page_url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0',
               'key': 'items',
@@ -256,6 +221,7 @@ describe('HostedNumberOrder', function() {
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'address_sid': 'AD11111111111111111111111111111111',
+                  'call_delay': 15,
                   'capabilities': {
                       'sms': true,
                       'voice': false
@@ -267,6 +233,8 @@ describe('HostedNumberOrder', function() {
                   'date_created': '2017-03-28T20:06:39Z',
                   'date_updated': '2017-03-28T20:06:39Z',
                   'email': 'test@twilio.com',
+                  'extension': '1234',
+                  'failure_reason': '',
                   'friendly_name': 'friendly_name',
                   'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
                   'phone_number': '+14153608311',
@@ -276,40 +244,254 @@ describe('HostedNumberOrder', function() {
                   'unique_name': 'foobar',
                   'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'verification_attempts': 0,
-                  'verification_type': 'phone-call',
-                  'verification_document_sid': null
+                  'verification_call_sids': [
+                      'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab'
+                  ],
+                  'verification_code': '8794',
+                  'verification_document_sid': null,
+                  'verification_type': 'phone-call'
               }
           ]
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.hosted_numbers.hostedNumberOrders.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'meta': {
+              'first_page_url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0',
+              'key': 'items',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0'
+          },
+          'items': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'address_sid': 'AD11111111111111111111111111111111',
+                  'call_delay': 15,
+                  'capabilities': {
+                      'sms': true,
+                      'voice': false
+                  },
+                  'cc_emails': [
+                      'aaa@twilio.com',
+                      'bbb@twilio.com'
+                  ],
+                  'date_created': '2017-03-28T20:06:39Z',
+                  'date_updated': '2017-03-28T20:06:39Z',
+                  'email': 'test@twilio.com',
+                  'extension': '1234',
+                  'failure_reason': '',
+                  'friendly_name': 'friendly_name',
+                  'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
+                  'phone_number': '+14153608311',
+                  'sid': 'HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'signing_document_sid': 'PX11111111111111111111111111111111',
+                  'status': 'received',
+                  'unique_name': 'foobar',
+                  'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'verification_attempts': 0,
+                  'verification_call_sids': [
+                      'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab'
+                  ],
+                  'verification_code': '8794',
+                  'verification_document_sid': null,
+                  'verification_type': 'phone-call'
+              }
+          ]
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.hosted_numbers.hostedNumberOrders.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'meta': {
+              'first_page_url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0',
+              'key': 'items',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0'
+          },
+          'items': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'address_sid': 'AD11111111111111111111111111111111',
+                  'call_delay': 15,
+                  'capabilities': {
+                      'sms': true,
+                      'voice': false
+                  },
+                  'cc_emails': [
+                      'aaa@twilio.com',
+                      'bbb@twilio.com'
+                  ],
+                  'date_created': '2017-03-28T20:06:39Z',
+                  'date_updated': '2017-03-28T20:06:39Z',
+                  'email': 'test@twilio.com',
+                  'extension': '1234',
+                  'failure_reason': '',
+                  'friendly_name': 'friendly_name',
+                  'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
+                  'phone_number': '+14153608311',
+                  'sid': 'HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'signing_document_sid': 'PX11111111111111111111111111111111',
+                  'status': 'received',
+                  'unique_name': 'foobar',
+                  'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'verification_attempts': 0,
+                  'verification_call_sids': [
+                      'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab'
+                  ],
+                  'verification_code': '8794',
+                  'verification_document_sid': null,
+                  'verification_type': 'phone-call'
+              }
+          ]
+      };
+      holodeck.mock(new Response(200, body));
+      client.preview.hosted_numbers.hostedNumberOrders.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.preview.hosted_numbers.hostedNumberOrders.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var url = 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders';
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_empty response',
+    function(done) {
+      var body = {
+          'meta': {
+              'first_page_url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?Status=completed&FriendlyName=example&PhoneNumber=%2B19193608000&UniqueName=something123&IncomingPhoneNumberSid=PNzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz&PageSize=50&Page=0',
+              'key': 'items',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?Status=completed&FriendlyName=example&PhoneNumber=%2B19193608000&UniqueName=something123&IncomingPhoneNumberSid=PNzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz&PageSize=50&Page=0'
+          },
+          'items': []
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.preview.hosted_numbers.hostedNumberOrders.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
+      }).done();
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'meta': {
+              'first_page_url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0',
+              'key': 'items',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders?PageSize=50&Page=0'
+          },
+          'items': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'address_sid': 'AD11111111111111111111111111111111',
+                  'call_delay': 15,
+                  'capabilities': {
+                      'sms': true,
+                      'voice': false
+                  },
+                  'cc_emails': [
+                      'aaa@twilio.com',
+                      'bbb@twilio.com'
+                  ],
+                  'date_created': '2017-03-28T20:06:39Z',
+                  'date_updated': '2017-03-28T20:06:39Z',
+                  'email': 'test@twilio.com',
+                  'extension': '1234',
+                  'failure_reason': '',
+                  'friendly_name': 'friendly_name',
+                  'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
+                  'phone_number': '+14153608311',
+                  'sid': 'HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'signing_document_sid': 'PX11111111111111111111111111111111',
+                  'status': 'received',
+                  'unique_name': 'foobar',
+                  'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'verification_attempts': 0,
+                  'verification_call_sids': [
+                      'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab'
+                  ],
+                  'verification_code': '8794',
+                  'verification_document_sid': null,
+                  'verification_type': 'phone-call'
+              }
+          ]
+      };
 
-      promise.done();
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.preview.hosted_numbers.hostedNumberOrders.list();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
     }
   );
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var opts = {phoneNumber: '+987654321', smsCapability: true};
+      var opts = {phoneNumber: '+15017122661', smsCapability: true};
       var promise = client.preview.hosted_numbers.hostedNumberOrders.create(opts);
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
       var url = 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders';
 
-      var values = {PhoneNumber: '+987654321', SmsCapability: serialize.bool(true)};
+      var values = {PhoneNumber: '+15017122661', SmsCapability: serialize.bool(true), };
       holodeck.assertHasRequest(new Request({
           method: 'POST',
           url: url,
@@ -318,10 +500,11 @@ describe('HostedNumberOrder', function() {
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'address_sid': 'AD11111111111111111111111111111111',
+          'call_delay': 0,
           'capabilities': {
               'sms': true,
               'voice': false
@@ -330,6 +513,8 @@ describe('HostedNumberOrder', function() {
           'date_created': '2017-03-28T20:06:39Z',
           'date_updated': '2017-03-28T20:06:39Z',
           'email': 'test@twilio.com',
+          'extension': null,
+          'failure_reason': '',
           'friendly_name': null,
           'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
           'phone_number': '+14153608311',
@@ -339,28 +524,30 @@ describe('HostedNumberOrder', function() {
           'unique_name': null,
           'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'verification_attempts': 0,
-          'verification_type': 'phone-call',
-          'verification_document_sid': null
-      });
+          'verification_call_sids': null,
+          'verification_code': null,
+          'verification_document_sid': null,
+          'verification_type': 'phone-call'
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var opts = {phoneNumber: '+987654321', smsCapability: true};
+      var opts = {phoneNumber: '+15017122661', smsCapability: true};
       var promise = client.preview.hosted_numbers.hostedNumberOrders.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid create_without_optional_loa_fields response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'address_sid': null,
+          'call_delay': 0,
           'capabilities': {
               'sms': true,
               'voice': false
@@ -369,6 +556,8 @@ describe('HostedNumberOrder', function() {
           'date_created': '2017-03-28T20:06:39Z',
           'date_updated': '2017-03-28T20:06:39Z',
           'email': null,
+          'extension': null,
+          'failure_reason': '',
           'friendly_name': null,
           'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
           'phone_number': '+14153608311',
@@ -378,28 +567,30 @@ describe('HostedNumberOrder', function() {
           'unique_name': null,
           'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'verification_attempts': 0,
-          'verification_type': 'phone-call',
-          'verification_document_sid': null
-      });
+          'verification_call_sids': null,
+          'verification_code': null,
+          'verification_document_sid': null,
+          'verification_type': 'phone-call'
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var opts = {phoneNumber: '+987654321', smsCapability: true};
+      var opts = {phoneNumber: '+15017122661', smsCapability: true};
       var promise = client.preview.hosted_numbers.hostedNumberOrders.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid create_with_phone_bill_verification response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'address_sid': null,
+          'call_delay': 0,
           'capabilities': {
               'sms': true,
               'voice': false
@@ -408,6 +599,8 @@ describe('HostedNumberOrder', function() {
           'date_created': '2017-03-28T20:06:39Z',
           'date_updated': '2017-03-28T20:06:39Z',
           'email': null,
+          'extension': null,
+          'failure_reason': '',
           'friendly_name': null,
           'incoming_phone_number_sid': 'PN11111111111111111111111111111111',
           'phone_number': '+14153608311',
@@ -417,22 +610,22 @@ describe('HostedNumberOrder', function() {
           'unique_name': null,
           'url': 'https://preview.twilio.com/HostedNumbers/HostedNumberOrders/HRaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'verification_attempts': 0,
-          'verification_type': 'phone-bill',
-          'verification_document_sid': 'RIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+          'verification_call_sids': null,
+          'verification_code': null,
+          'verification_document_sid': 'RIaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'verification_type': 'phone-bill'
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var opts = {phoneNumber: '+987654321', smsCapability: true};
+      var opts = {phoneNumber: '+15017122661', smsCapability: true};
       var promise = client.preview.hosted_numbers.hostedNumberOrders.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

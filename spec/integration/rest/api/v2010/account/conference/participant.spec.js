@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,30 +25,28 @@ var holodeck;
 describe('Participant', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .participants('CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        conferenceSid: 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        callSid: 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Conferences/<%= conferenceSid %>/Participants/<%= callSid %>.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var conferenceSid = 'CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var callSid = 'CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Conferences/${conferenceSid}/Participants/${callSid}.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -58,10 +55,11 @@ describe('Participant', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': null,
           'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
           'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
@@ -70,43 +68,74 @@ describe('Participant', function() {
           'hold': false,
           'status': 'complete',
           'start_conference_on_enter': true,
+          'coaching': true,
+          'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .participants('CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
+      }).done();
+    }
+  );
+  it('should generate valid fetch_by_label response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': 'customer',
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': false,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': true,
+          'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
 
-      promise.done();
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
     }
   );
   it('should generate valid update request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .participants('CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function() {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        conferenceSid: 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        callSid: 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Conferences/<%= conferenceSid %>/Participants/<%= callSid %>.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var conferenceSid = 'CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var callSid = 'CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Conferences/${conferenceSid}/Participants/${callSid}.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'POST',
@@ -114,11 +143,76 @@ describe('Participant', function() {
       }));
     }
   );
-  it('should generate valid update response',
-    function() {
-      var body = JSON.stringify({
+  it('should generate valid mute_participant response',
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': null,
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': true,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
+
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid mute_participant_by_label response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': 'customer',
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': true,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
+
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid modify_participant response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': null,
           'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
           'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
@@ -127,45 +221,76 @@ describe('Participant', function() {
           'hold': false,
           'status': 'complete',
           'start_conference_on_enter': true,
+          'coaching': true,
+          'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .participants('CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').update();
-      promise = promise.then(function(response) {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
+      }).done();
+    }
+  );
+  it('should generate valid modify_participant_by_label response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': 'customer',
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': false,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': true,
+          'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
 
-      promise.done();
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').update();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
     }
   );
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var opts = {from: '+987654321', to: '+123456789'};
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .participants.create(opts);
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        conferenceSid: 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Conferences/<%= conferenceSid %>/Participants.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var conferenceSid = 'CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Conferences/${conferenceSid}/Participants.json`;
 
-      var values = {From: '+987654321', To: '+123456789'};
+      var values = {From: '+15017122661', To: '+15558675310', };
       holodeck.assertHasRequest(new Request({
           method: 'POST',
           url: url,
@@ -174,10 +299,11 @@ describe('Participant', function() {
     }
   );
   it('should generate valid create_with_sid response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': 'customer',
           'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
           'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
@@ -186,27 +312,193 @@ describe('Participant', function() {
           'hold': false,
           'status': 'complete',
           'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
-      });
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var opts = {from: '+987654321', to: '+123456789'};
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .participants.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid create_with_friendly_name response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': 'customer',
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': false,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
+
+      holodeck.mock(new Response(201, body));
+
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants.create(opts);
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid create_with_sid_as_coach response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': null,
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': false,
+          'hold': false,
+          'status': 'queued',
+          'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
+
+      holodeck.mock(new Response(201, body));
+
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants.create(opts);
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid create_with_non_e164_number response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': null,
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': false,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
+
+      holodeck.mock(new Response(201, body));
+
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants.create(opts);
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid create_with_friendly_name_jitter_buffer_size response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': null,
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': false,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
+
+      holodeck.mock(new Response(201, body));
+
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants.create(opts);
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid create_with_friendly_name_byoc response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': null,
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': false,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
+
+      holodeck.mock(new Response(201, body));
+
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants.create(opts);
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid create_with_friendly_name_caller_id response',
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -217,44 +509,77 @@ describe('Participant', function() {
           'hold': false,
           'status': 'complete',
           'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'label': null,
           'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
-      });
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var opts = {from: '+987654321', to: '+123456789'};
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .participants.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
+      }).done();
+    }
+  );
+  it('should generate valid create_with_friendly_name_reason response',
+    function(done) {
+      var body = {
+          'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'label': null,
+          'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+          'end_conference_on_exit': false,
+          'muted': false,
+          'hold': false,
+          'status': 'complete',
+          'start_conference_on_enter': true,
+          'coaching': false,
+          'call_sid_to_coach': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+      };
 
-      promise.done();
+      holodeck.mock(new Response(201, body));
+
+      var opts = {from: '+15017122661', to: '+15558675310'};
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants.create(opts);
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
     }
   );
   it('should generate valid remove request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .participants('CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function() {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        conferenceSid: 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        callSid: 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Conferences/<%= conferenceSid %>/Participants/<%= callSid %>.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var conferenceSid = 'CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var callSid = 'CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Conferences/${conferenceSid}/Participants/${callSid}.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'DELETE',
@@ -263,42 +588,217 @@ describe('Participant', function() {
     }
   );
   it('should generate valid delete response',
-    function() {
-      var body = JSON.stringify(null);
+    function(done) {
+      var body = null;
 
       holodeck.mock(new Response(204, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .participants('CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function(response) {
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
         expect(response).toBe(true);
+        done();
       }, function() {
         throw new Error('failed');
-      });
+      }).done();
+    }
+  );
+  it('should generate valid delete_by_label response',
+    function(done) {
+      var body = null;
 
-      promise.done();
+      holodeck.mock(new Response(204, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants('CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').remove();
+      promise.then(function(response) {
+        expect(response).toBe(true);
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
+          'participants': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': true,
+                  'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': false,
+                  'call_sid_to_coach': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.json'
+              }
+          ],
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'next_page_uri': null,
+          'previous_page_uri': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'page': 0,
+          'page_size': 2,
+          'start': 0,
+          'end': 1
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .participants.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'participants': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': true,
+                  'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': false,
+                  'call_sid_to_coach': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.json'
+              }
+          ],
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'next_page_uri': null,
+          'previous_page_uri': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'page': 0,
+          'page_size': 2,
+          'start': 0,
+          'end': 1
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .participants.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Conferences/${conferenceSid}/Participants.json',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'participants': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': true,
+                  'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': false,
+                  'call_sid_to_coach': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.json'
+              }
+          ],
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'next_page_uri': null,
+          'previous_page_uri': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'page': 0,
+          'page_size': 2,
+          'start': 0,
+          'end': 1
+      };
+      holodeck.mock(new Response(200, body));
+      client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                      .participants.each({callback: () => done()}, () => fail('wrong callback!'));
     }
   );
   it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .participants.list();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        accountSid: 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        conferenceSid: 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://api.twilio.com/2010-04-01/Accounts/<%= accountSid %>/Conferences/<%= conferenceSid %>/Participants.json')(solution);
+      var accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var conferenceSid = 'CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Conferences/${conferenceSid}/Participants.json`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -306,75 +806,211 @@ describe('Participant', function() {
       }));
     }
   );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
-          'end': 0,
-          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Page=0&PageSize=50',
+  it('should generate valid read_empty response',
+    function(done) {
+      var body = {
+          'participants': [],
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Hold=True&PageSize=50&Page=0',
           'next_page_uri': null,
+          'previous_page_uri': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Hold=True&PageSize=50&Page=0',
           'page': 0,
           'page_size': 50,
+          'end': 0,
+          'start': 0
+      };
+
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants.list();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
           'participants': [
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': true,
+                  'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'label': null,
                   'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
                   'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
                   'end_conference_on_exit': false,
-                  'muted': false,
+                  'muted': true,
                   'hold': false,
-                  'status': 'complete',
+                  'status': 'connected',
                   'start_conference_on_enter': true,
-                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+                  'coaching': false,
+                  'call_sid_to_coach': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.json'
               }
           ],
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'next_page_uri': null,
           'previous_page_uri': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'page': 0,
+          'page_size': 2,
           'start': 0,
-          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json'
-      });
+          'end': 1
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .participants.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
-          'end': 0,
-          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Page=0&PageSize=50',
+  it('should generate valid read_next response',
+    function(done) {
+      var body = {
+          'participants': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAcccccccccccccccccccccccccccccccc',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Thu, 17 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Thu, 17 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': false,
+                  'call_sid_to_coach': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAcccccccccccccccccccccccccccccccc.json'
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAdddddddddddddddddddddddddddddddd',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Wed, 16 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Wed, 16 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': false,
+                  'call_sid_to_coach': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAdddddddddddddddddddddddddddddddd.json'
+              }
+          ],
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
           'next_page_uri': null,
-          'page': 0,
-          'page_size': 50,
-          'participants': [],
-          'previous_page_uri': null,
-          'start': 0,
-          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json'
-      });
+          'previous_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0&PageToken=PBCPcccccccccccccccccccccccccccccccc',
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=1&PageToken=PACPbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+          'page': 1,
+          'page_size': 2,
+          'start': 2,
+          'end': 3
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.api.v2010.accounts('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                    .conferences('CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                     .participants.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
+      }).done();
+    }
+  );
+  it('should generate valid read_previous response',
+    function(done) {
+      var body = {
+          'participants': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Sat, 19 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': true,
+                  'call_sid_to_coach': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'
+              },
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'call_sid': 'CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                  'label': null,
+                  'conference_sid': 'CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'date_created': 'Fri, 18 Feb 2011 21:07:19 +0000',
+                  'date_updated': 'Fri, 18 Feb 2011 21:07:19 +0000',
+                  'end_conference_on_exit': false,
+                  'muted': true,
+                  'hold': false,
+                  'status': 'connected',
+                  'start_conference_on_enter': true,
+                  'coaching': false,
+                  'call_sid_to_coach': null,
+                  'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants/CAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.json'
+              }
+          ],
+          'first_page_uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0',
+          'next_page_uri': null,
+          'previous_page_uri': null,
+          'uri': '/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Conferences/CFaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Participants.json?Muted=true&PageSize=2&Page=0&PageToken=PBCPcccccccccccccccccccccccccccccccc',
+          'page': 0,
+          'page_size': 2,
+          'start': 0,
+          'end': 1
+      };
 
-      promise.done();
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.api.v2010.accounts('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .conferences('CFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                    .participants.list();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
     }
   );
 });
-

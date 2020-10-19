@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,24 +25,24 @@ var holodeck;
 describe('Alert', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.monitor.v1.alerts('NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.monitor.v1.alerts('NOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {sid: 'NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://monitor.twilio.com/v1/Alerts/<%= sid %>')(solution);
+      var sid = 'NOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://monitor.twilio.com/v1/Alerts/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -52,8 +51,8 @@ describe('Alert', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'alert_text': 'alert_text',
           'api_version': '2010-04-01',
@@ -69,109 +68,26 @@ describe('Alert', function() {
           'resource_sid': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'response_body': 'response_body',
           'response_headers': 'response_headers',
+          'request_headers': 'request_headers',
           'sid': 'NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          'url': 'http://www.example.com'
-      });
+          'url': 'https://monitor.twilio.com/v1/Alerts/NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          'service_sid': 'PNe2cd757cd5257b0217a447933a0290d2'
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.monitor.v1.alerts('NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.monitor.v1.alerts('NOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid remove request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.monitor.v1.alerts('NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var solution = {sid: 'NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://monitor.twilio.com/v1/Alerts/<%= sid %>')(solution);
-
-      holodeck.assertHasRequest(new Request({
-        method: 'DELETE',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid delete response',
-    function() {
-      var body = JSON.stringify(null);
-
-      holodeck.mock(new Response(204, body));
-
-      var promise = client.monitor.v1.alerts('NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').remove();
-      promise = promise.then(function(response) {
-        expect(response).toBe(true);
-      }, function() {
-        throw new Error('failed');
-      });
-
-      promise.done();
-    }
-  );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.monitor.v1.alerts.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var url = 'https://monitor.twilio.com/v1/Alerts';
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
-          'alerts': [],
-          'meta': {
-              'first_page_url': 'https://monitor.twilio.com/v1/Alerts?Page=0&PageSize=50',
-              'key': 'alerts',
-              'next_page_url': null,
-              'page': 0,
-              'page_size': 0,
-              'previous_page_url': null,
-              'url': 'https://monitor.twilio.com/v1/Alerts'
-          }
-      });
-
-      holodeck.mock(new Response(200, body));
-
-      var promise = client.monitor.v1.alerts.list();
-      promise = promise.then(function(response) {
-        expect(response).toBeDefined();
-      }, function() {
-        throw new Error('failed');
-      });
-
-      promise.done();
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'alerts': [
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -187,31 +103,189 @@ describe('Alert', function() {
                   'request_url': 'http://www.example.com',
                   'resource_sid': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                   'sid': 'NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                  'url': 'http://www.example.com'
+                  'url': 'https://monitor.twilio.com/v1/Alerts/NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'PNe2cd757cd5257b0217a447933a0290d2'
               }
           ],
           'meta': {
-              'first_page_url': 'https://monitor.twilio.com/v1/Alerts?Page=0&PageSize=50',
+              'first_page_url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0',
               'key': 'alerts',
               'next_page_url': null,
               'page': 0,
-              'page_size': 1,
+              'page_size': 50,
               'previous_page_url': null,
-              'url': 'https://monitor.twilio.com/v1/Alerts'
+              'url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0'
           }
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.monitor.v1.alerts.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'alerts': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'alert_text': 'alert_text',
+                  'api_version': '2010-04-01',
+                  'date_created': '2015-07-30T20:00:00Z',
+                  'date_generated': '2015-07-30T20:00:00Z',
+                  'date_updated': '2015-07-30T20:00:00Z',
+                  'error_code': 'error_code',
+                  'log_level': 'log_level',
+                  'more_info': 'more_info',
+                  'request_method': 'GET',
+                  'request_url': 'http://www.example.com',
+                  'resource_sid': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://monitor.twilio.com/v1/Alerts/NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'PNe2cd757cd5257b0217a447933a0290d2'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0',
+              'key': 'alerts',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.monitor.v1.alerts.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://monitor.twilio.com/v1/Alerts',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'alerts': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'alert_text': 'alert_text',
+                  'api_version': '2010-04-01',
+                  'date_created': '2015-07-30T20:00:00Z',
+                  'date_generated': '2015-07-30T20:00:00Z',
+                  'date_updated': '2015-07-30T20:00:00Z',
+                  'error_code': 'error_code',
+                  'log_level': 'log_level',
+                  'more_info': 'more_info',
+                  'request_method': 'GET',
+                  'request_url': 'http://www.example.com',
+                  'resource_sid': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://monitor.twilio.com/v1/Alerts/NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'PNe2cd757cd5257b0217a447933a0290d2'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0',
+              'key': 'alerts',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.monitor.v1.alerts.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.monitor.v1.alerts.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var url = 'https://monitor.twilio.com/v1/Alerts';
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_empty response',
+    function(done) {
+      var body = {
+          'alerts': [],
+          'meta': {
+              'first_page_url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0',
+              'key': 'alerts',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0'
+          }
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.monitor.v1.alerts.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
+      }).done();
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'alerts': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'alert_text': 'alert_text',
+                  'api_version': '2010-04-01',
+                  'date_created': '2015-07-30T20:00:00Z',
+                  'date_generated': '2015-07-30T20:00:00Z',
+                  'date_updated': '2015-07-30T20:00:00Z',
+                  'error_code': 'error_code',
+                  'log_level': 'log_level',
+                  'more_info': 'more_info',
+                  'request_method': 'GET',
+                  'request_url': 'http://www.example.com',
+                  'resource_sid': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'sid': 'NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'url': 'https://monitor.twilio.com/v1/Alerts/NOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'service_sid': 'PNe2cd757cd5257b0217a447933a0290d2'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0',
+              'key': 'alerts',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://monitor.twilio.com/v1/Alerts?LogLevel=log_level&StartDate=2016-01-01&EndDate=2016-01-01&PageSize=50&Page=0'
+          }
+      };
 
-      promise.done();
+      holodeck.mock(new Response(200, body));
+
+      var promise = client.monitor.v1.alerts.list();
+      promise.then(function(response) {
+        expect(response).toBeDefined();
+        done();
+      }, function() {
+        throw new Error('failed');
+      }).done();
     }
   );
 });
-

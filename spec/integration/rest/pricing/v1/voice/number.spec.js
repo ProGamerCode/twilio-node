@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,25 +25,25 @@ var holodeck;
 describe('Number', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
       var promise = client.pricing.v1.voice
-                                     .numbers('+987654321').fetch();
-      promise = promise.then(function() {
+                                     .numbers('+15017122661').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {number: '+987654321'};
-      var url = _.template('https://pricing.twilio.com/v1/Voice/Numbers/<%= number %>')(solution);
+      var number = '+15017122661';
+      var url = `https://pricing.twilio.com/v1/Voice/Numbers/${number}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -53,36 +52,34 @@ describe('Number', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
-          'country': 'United States',
+    function(done) {
+      var body = {
+          'country': 'Iran',
           'inbound_call_price': {
               'base_price': null,
               'current_price': null,
               'number_type': null
           },
-          'iso_country': 'US',
+          'iso_country': 'IR',
           'number': '+987654321',
           'outbound_call_price': {
-              'base_price': '0.015',
-              'current_price': '0.015'
+              'base_price': '0.255',
+              'current_price': '0.255'
           },
           'price_unit': 'USD',
           'url': 'https://pricing.twilio.com/v1/Voice/Numbers/+987654321'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.pricing.v1.voice
-                                     .numbers('+987654321').fetch();
-      promise = promise.then(function(response) {
+                                     .numbers('+15017122661').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -28,32 +27,30 @@ var holodeck;
 describe('StreamMessage', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid create request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var opts = {data: '{}'};
-      var promise = client.sync.v1.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                  .syncStreams('TOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {data: {}};
+      var promise = client.sync.v1.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                  .syncStreams('TOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                   .streamMessages.create(opts);
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {
-        serviceSid: 'ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        streamSid: 'TOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      };
-      var url = _.template('https://sync.twilio.com/v1/Services/<%= serviceSid %>/Streams/<%= streamSid %>/Messages')(solution);
+      var serviceSid = 'ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var streamSid = 'TOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://sync.twilio.com/v1/Services/${serviceSid}/Streams/${streamSid}/Messages`;
 
-      var values = {Data: serialize.object('{}')};
+      var values = {Data: serialize.object({}), };
       holodeck.assertHasRequest(new Request({
           method: 'POST',
           url: url,
@@ -62,26 +59,24 @@ describe('StreamMessage', function() {
     }
   );
   it('should generate valid create response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'sid': 'TZaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'data': {}
-      });
+      };
 
       holodeck.mock(new Response(201, body));
 
-      var opts = {data: '{}'};
-      var promise = client.sync.v1.services('ISaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                                  .syncStreams('TOaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      var opts = {data: {}};
+      var promise = client.sync.v1.services('ISXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                                  .syncStreams('TOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
                                   .streamMessages.create(opts);
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

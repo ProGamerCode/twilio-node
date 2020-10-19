@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,24 +25,24 @@ var holodeck;
 describe('ExportConfiguration', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.preview.bulk_exports.exportConfiguration('resourceType').fetch();
-      promise = promise.then(function() {
+      var promise = client.preview.bulk_exports.exportConfiguration('resource_type').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {resourceType: 'resourceType'};
-      var url = _.template('https://preview.twilio.com/BulkExports/Exports/<%= resourceType %>/Configuration')(solution);
+      var resourceType = 'resource_type';
+      var url = `https://preview.twilio.com/BulkExports/Exports/${resourceType}/Configuration`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -52,41 +51,40 @@ describe('ExportConfiguration', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'url': 'https://preview.twilio.com/BulkExports/Exports/Calls/Configuration',
           'enabled': true,
           'webhook_url': '',
           'webhook_method': '',
           'resource_type': 'Calls'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.bulk_exports.exportConfiguration('resourceType').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.preview.bulk_exports.exportConfiguration('resource_type').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid update request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.preview.bulk_exports.exportConfiguration('resourceType').update();
-      promise = promise.then(function() {
+      var promise = client.preview.bulk_exports.exportConfiguration('resource_type').update();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {resourceType: 'resourceType'};
-      var url = _.template('https://preview.twilio.com/BulkExports/Exports/<%= resourceType %>/Configuration')(solution);
+      var resourceType = 'resource_type';
+      var url = `https://preview.twilio.com/BulkExports/Exports/${resourceType}/Configuration`;
 
       holodeck.assertHasRequest(new Request({
         method: 'POST',
@@ -95,26 +93,24 @@ describe('ExportConfiguration', function() {
     }
   );
   it('should generate valid update response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'url': 'https://preview.twilio.com/BulkExports/Exports/Calls/Configuration',
           'enabled': true,
           'webhook_url': '',
           'resource_type': 'Calls',
           'webhook_method': ''
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.preview.bulk_exports.exportConfiguration('resourceType').update();
-      promise = promise.then(function(response) {
+      var promise = client.preview.bulk_exports.exportConfiguration('resource_type').update();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

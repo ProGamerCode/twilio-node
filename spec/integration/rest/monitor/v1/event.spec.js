@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,24 +25,24 @@ var holodeck;
 describe('Event', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
-      var promise = client.monitor.v1.events('AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function() {
+      var promise = client.monitor.v1.events('AEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {sid: 'AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'};
-      var url = _.template('https://monitor.twilio.com/v1/Events/<%= sid %>')(solution);
+      var sid = 'AEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+      var url = `https://monitor.twilio.com/v1/Events/${sid}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -52,8 +51,8 @@ describe('Event', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'actor_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           'actor_type': 'account',
@@ -76,43 +75,22 @@ describe('Event', function() {
           'source': 'api',
           'source_ip_address': '10.86.6.250',
           'url': 'https://monitor.twilio.com/v1/Events/AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
-      var promise = client.monitor.v1.events('AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').fetch();
-      promise = promise.then(function(response) {
+      var promise = client.monitor.v1.events('AEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX').fetch();
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
-  it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
-
-      var promise = client.monitor.v1.events.list();
-      promise = promise.then(function() {
-        throw new Error('failed');
-      }, function(error) {
-        expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
-
-      var url = 'https://monitor.twilio.com/v1/Events';
-
-      holodeck.assertHasRequest(new Request({
-        method: 'GET',
-        url: url
-      }));
-    }
-  );
-  it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
           'events': [
               {
                   'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -148,23 +126,176 @@ describe('Event', function() {
               'previous_page_url': null,
               'url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0'
           }
-      });
+      };
+      holodeck.mock(new Response(200, body));
+      client.monitor.v1.events.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'events': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_type': 'account',
+                  'description': null,
+                  'event_data': {
+                      'friendly_name': {
+                          'previous': 'SubAccount Created at 2014-10-03 09:48 am',
+                          'updated': 'Mr. Friendly'
+                      }
+                  },
+                  'event_date': '2014-10-03T16:48:25Z',
+                  'event_type': 'account.updated',
+                  'links': {
+                      'actor': 'https://api.twilio.com/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'resource': 'https://api.twilio.com/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'resource_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'resource_type': 'account',
+                  'sid': 'AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source': 'api',
+                  'source_ip_address': '10.86.6.250',
+                  'url': 'https://monitor.twilio.com/v1/Events/AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0',
+              'key': 'events',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.monitor.v1.events.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://monitor.twilio.com/v1/Events',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'events': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_type': 'account',
+                  'description': null,
+                  'event_data': {
+                      'friendly_name': {
+                          'previous': 'SubAccount Created at 2014-10-03 09:48 am',
+                          'updated': 'Mr. Friendly'
+                      }
+                  },
+                  'event_date': '2014-10-03T16:48:25Z',
+                  'event_type': 'account.updated',
+                  'links': {
+                      'actor': 'https://api.twilio.com/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'resource': 'https://api.twilio.com/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'resource_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'resource_type': 'account',
+                  'sid': 'AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source': 'api',
+                  'source_ip_address': '10.86.6.250',
+                  'url': 'https://monitor.twilio.com/v1/Events/AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0',
+              'key': 'events',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.monitor.v1.events.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
+  it('should generate valid list request',
+    function(done) {
+      holodeck.mock(new Response(500, {}));
+
+      var promise = client.monitor.v1.events.list();
+      promise.then(function() {
+        throw new Error('failed');
+      }, function(error) {
+        expect(error.constructor).toBe(RestException.prototype.constructor);
+        done();
+      }).done();
+
+      var url = 'https://monitor.twilio.com/v1/Events';
+
+      holodeck.assertHasRequest(new Request({
+        method: 'GET',
+        url: url
+      }));
+    }
+  );
+  it('should generate valid read_full response',
+    function(done) {
+      var body = {
+          'events': [
+              {
+                  'account_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'actor_type': 'account',
+                  'description': null,
+                  'event_data': {
+                      'friendly_name': {
+                          'previous': 'SubAccount Created at 2014-10-03 09:48 am',
+                          'updated': 'Mr. Friendly'
+                      }
+                  },
+                  'event_date': '2014-10-03T16:48:25Z',
+                  'event_type': 'account.updated',
+                  'links': {
+                      'actor': 'https://api.twilio.com/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                      'resource': 'https://api.twilio.com/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                  },
+                  'resource_sid': 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'resource_type': 'account',
+                  'sid': 'AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  'source': 'api',
+                  'source_ip_address': '10.86.6.250',
+                  'url': 'https://monitor.twilio.com/v1/Events/AEaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+              }
+          ],
+          'meta': {
+              'first_page_url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0',
+              'key': 'events',
+              'next_page_url': null,
+              'page': 0,
+              'page_size': 50,
+              'previous_page_url': null,
+              'url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0'
+          }
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.monitor.v1.events.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'events': [],
           'meta': {
               'first_page_url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0',
@@ -175,19 +306,17 @@ describe('Event', function() {
               'previous_page_url': null,
               'url': 'https://monitor.twilio.com/v1/Events?PageSize=50&Page=0'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.monitor.v1.events.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-

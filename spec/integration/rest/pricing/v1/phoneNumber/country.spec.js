@@ -9,7 +9,6 @@
  */
 /* jshint ignore:end */
 
-var _ = require('lodash');  /* jshint ignore:line */
 var Holodeck = require('../../../../holodeck');  /* jshint ignore:line */
 var Request = require(
     '../../../../../../lib/http/request');  /* jshint ignore:line */
@@ -26,22 +25,102 @@ var holodeck;
 describe('Country', function() {
   beforeEach(function() {
     holodeck = new Holodeck();
-    client = new Twilio('ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'AUTHTOKEN', {
+    client = new Twilio('ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'AUTHTOKEN', {
       httpClient: holodeck
     });
   });
+  it('should treat the first each arg as a callback',
+    function(done) {
+      var body = {
+          'countries': [
+              {
+                  'country': 'Austria',
+                  'iso_country': 'AT',
+                  'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries/AT'
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'countries'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.pricing.v1.phoneNumbers
+                       .countries.each(() => done());
+    }
+  );
+  it('should treat the second arg as a callback',
+    function(done) {
+      var body = {
+          'countries': [
+              {
+                  'country': 'Austria',
+                  'iso_country': 'AT',
+                  'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries/AT'
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'countries'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.pricing.v1.phoneNumbers
+                       .countries.each({pageSize: 20}, () => done());
+      holodeck.assertHasRequest(new Request({
+          method: 'GET',
+          url: 'https://pricing.twilio.com/v1/PhoneNumbers/Countries',
+          params: {PageSize: 20},
+      }));
+    }
+  );
+  it('should find the callback in the opts object',
+    function(done) {
+      var body = {
+          'countries': [
+              {
+                  'country': 'Austria',
+                  'iso_country': 'AT',
+                  'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries/AT'
+              }
+          ],
+          'meta': {
+              'page': 0,
+              'page_size': 50,
+              'first_page_url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
+              'previous_page_url': null,
+              'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'countries'
+          }
+      };
+      holodeck.mock(new Response(200, body));
+      client.pricing.v1.phoneNumbers
+                       .countries.each({callback: () => done()}, () => fail('wrong callback!'));
+    }
+  );
   it('should generate valid list request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
       var promise = client.pricing.v1.phoneNumbers
                                      .countries.list();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
       var url = 'https://pricing.twilio.com/v1/PhoneNumbers/Countries';
 
@@ -52,8 +131,8 @@ describe('Country', function() {
     }
   );
   it('should generate valid read_full response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'countries': [
               {
                   'country': 'Austria',
@@ -62,72 +141,70 @@ describe('Country', function() {
               }
           ],
           'meta': {
-              'first_page_url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=1&Page=0',
-              'key': 'countries',
-              'next_page_url': null,
               'page': 0,
-              'page_size': 1,
+              'page_size': 50,
+              'first_page_url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
               'previous_page_url': null,
-              'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=1&Page=0'
+              'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
+              'next_page_url': null,
+              'key': 'countries'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.pricing.v1.phoneNumbers
                                      .countries.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid read_empty response',
-    function() {
-      var body = JSON.stringify({
+    function(done) {
+      var body = {
           'countries': [],
           'meta': {
-              'first_page_url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=1&Page=0',
+              'first_page_url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0',
               'key': 'countries',
               'next_page_url': null,
               'page': 0,
-              'page_size': 1,
+              'page_size': 50,
               'previous_page_url': null,
-              'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=1&Page=0'
+              'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries?PageSize=50&Page=0'
           }
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.pricing.v1.phoneNumbers
                                      .countries.list();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
   it('should generate valid fetch request',
-    function() {
-      holodeck.mock(new Response(500, '{}'));
+    function(done) {
+      holodeck.mock(new Response(500, {}));
 
       var promise = client.pricing.v1.phoneNumbers
                                      .countries('US').fetch();
-      promise = promise.then(function() {
+      promise.then(function() {
         throw new Error('failed');
       }, function(error) {
         expect(error.constructor).toBe(RestException.prototype.constructor);
-      });
-      promise.done();
+        done();
+      }).done();
 
-      var solution = {isoCountry: 'US'};
-      var url = _.template('https://pricing.twilio.com/v1/PhoneNumbers/Countries/<%= isoCountry %>')(solution);
+      var isoCountry = 'US';
+      var url = `https://pricing.twilio.com/v1/PhoneNumbers/Countries/${isoCountry}`;
 
       holodeck.assertHasRequest(new Request({
         method: 'GET',
@@ -136,38 +213,36 @@ describe('Country', function() {
     }
   );
   it('should generate valid fetch response',
-    function() {
-      var body = JSON.stringify({
-          'country': 'Estonia',
-          'iso_country': 'EE',
+    function(done) {
+      var body = {
+          'country': 'United States',
+          'iso_country': 'US',
           'phone_number_prices': [
               {
-                  'base_price': 3.0,
-                  'current_price': 3.0,
-                  'type': 'mobile'
+                  'number_type': 'local',
+                  'base_price': '1.00',
+                  'current_price': '1.00'
               },
               {
-                  'base_price': 1.0,
-                  'current_price': 1.0,
-                  'type': 'national'
+                  'number_type': 'toll free',
+                  'base_price': '2.00',
+                  'current_price': '2.00'
               }
           ],
-          'price_unit': 'usd',
+          'price_unit': 'USD',
           'url': 'https://pricing.twilio.com/v1/PhoneNumbers/Countries/US'
-      });
+      };
 
       holodeck.mock(new Response(200, body));
 
       var promise = client.pricing.v1.phoneNumbers
                                      .countries('US').fetch();
-      promise = promise.then(function(response) {
+      promise.then(function(response) {
         expect(response).toBeDefined();
+        done();
       }, function() {
         throw new Error('failed');
-      });
-
-      promise.done();
+      }).done();
     }
   );
 });
-
